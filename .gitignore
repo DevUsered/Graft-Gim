@@ -1,0 +1,16 @@
+# Dependencias de Node (Frontend)
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Entornos de Java (Backend)
+target/
+*.jar
+*.war
+
+# Archivos de editores y sistema operativo
+.DS_Store
+.idea/
+.vscode/
+*.log
