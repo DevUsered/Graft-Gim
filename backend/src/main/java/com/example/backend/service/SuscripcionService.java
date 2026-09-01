@@ -1,0 +1,29 @@
+package com.example.backend.service;
+
+import com.example.backend.model.Suscripcion;
+import com.example.backend.repository.SuscripcionRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class SuscripcionService {
+
+    @Autowired
+    private SuscripcionRepository suscripcionRepository;
+
+    public List<Suscripcion> obtenerTodas(){
+        return suscripcionRepository.findAll();
+    }
+
+    public Suscripcion guardar(Suscripcion suscripcion){
+        if(suscripcion.getFechaFin() == null && suscripcion.getMembresia() != null){
+            LocalDate inicio = suscripcion.getFechaInicio();
+            int dias = suscripcion.getMembresia().getDuracionDias();
+            suscripcion.setFechaFin(inicio.plusDays(dias));
+        }
+        return suscripcionRepository.save(suscripcion);
+    }
+}
