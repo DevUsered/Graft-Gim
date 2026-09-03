@@ -22,4 +22,20 @@ public class ClienteService {
     public Cliente guardarCliente(Cliente cliente) {
         return clienteRepository.save(cliente);
     }
+
+    public Cliente actualizarCliente(Integer id, Cliente detCliente){
+        Cliente clienteExis = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+        clienteExis.setCarnetIdentidad(detCliente.getCarnetIdentidad());
+        clienteExis.setNombreCompleto(detCliente.getNombreCompleto());
+        clienteExis.setTelefono(detCliente.getTelefono());
+
+        if(detCliente.getEstado() != null){
+            clienteExis.setEstado(detCliente.getEstado());
+        }
+        return clienteRepository.save(clienteExis);
+    }
+    public void eliminarCliente(Integer id){
+        clienteRepository.deleteById(id);
+    }
 }

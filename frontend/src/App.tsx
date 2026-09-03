@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
+import Membresias from './pages/Membresias';
+import Suscripciones from './pages/Suscripciones';
 
 export default function App() {
   return (
@@ -14,6 +16,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/clientes" element={<Clientes />} />
+            <Route path="/membresias" element={<Membresias />} />
+            <Route path="/suscripciones" element={<Suscripciones />} />
           </Routes>
         </main>
 

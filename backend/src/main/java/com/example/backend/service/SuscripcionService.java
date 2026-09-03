@@ -1,6 +1,8 @@
 package com.example.backend.service;
 
+import com.example.backend.model.Membresia;
 import com.example.backend.model.Suscripcion;
+import com.example.backend.repository.MembresiaRepository;
 import com.example.backend.repository.SuscripcionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,15 +16,27 @@ public class SuscripcionService {
     @Autowired
     private SuscripcionRepository suscripcionRepository;
 
+    @Autowired
+    private MembresiaRepository membresiaRepository;
+
     public List<Suscripcion> obtenerTodas(){
         return suscripcionRepository.findAll();
     }
 
     public Suscripcion guardar(Suscripcion suscripcion){
-        if(suscripcion.getFechaFin() == null && suscripcion.getMembresia() != null){
-            LocalDate inicio = suscripcion.getFechaInicio();
-            int dias = suscripcion.getMembresia().getDuracionDias();
-            suscripcion.setFechaFin(inicio.plusDays(dias));
+        if(suscripcion.getMembresia() != null && suscripcion.getMembresia().getIdMembresia() != null){
+            Integer id = suscripcion.getMembresia().getIdMembresia();
+            Membresia membresiaReal = membresiaRepository.findById(id).orElse(null);
+
+            if(membresiaReal != null){
+                suscripcion.setMembresia(membresiaReal);
+
+                if(suscripcion.getFechaFin() == null){
+                    LocalDate inicio = suscripcion.getFechaInicio();
+                    int dias = membresiaReal.getDuracionDias();
+                    suscripcion.setFechaFin(inicio.plusDays(dias));
+                }
+            }
         }
         return suscripcionRepository.save(suscripcion);
     }

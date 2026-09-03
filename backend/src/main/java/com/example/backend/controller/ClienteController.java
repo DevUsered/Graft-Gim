@@ -28,4 +28,13 @@ public class ClienteController {
     public Cliente crearCliente(@RequestBody Cliente cliente) {
         return clienteService.guardarCliente(cliente);
     }
+
+    @PutMapping("/{id}")
+    public Cliente actualizarCliente(@PathVariable Integer id, @RequestBody Cliente cliente){
+        return clienteService.actualizarCliente(id, cliente);
+    }
+    @DeleteMapping("/{id}")
+    public void eliminarCliente(@PathVariable Integer id){
+        clienteService.eliminarCliente(id);
+    }
 }
