@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Clientes from './pages/Clientes';
 import Membresias from './pages/Membresias';
 import Suscripciones from './pages/Suscripciones';
+import Recepcion from './pages/Recepcion';
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
             <Route path="/clientes" element={<Clientes />} />
             <Route path="/membresias" element={<Membresias />} />
             <Route path="/suscripciones" element={<Suscripciones />} />
+            <Route path="/recepcion" element={<Recepcion />} />
           </Routes>
         </main>
 

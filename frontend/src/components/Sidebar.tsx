@@ -47,6 +47,12 @@ export default function Sidebar() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/recepcion" className={linkClasses}>
+              <span className="text-xl">🛎️</span>
+              {isOpen && <span className="ml-4">Control de Acceso</span>}
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/clientes" className={linkClasses}>
               <span className="text-xl">👥</span>
               {isOpen && <span className="ml-4">Directorio de Clientes</span>}
