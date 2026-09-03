@@ -19,4 +19,18 @@ public class MembresiaService {
     public Membresia guardarMembresia(Membresia membresia) {
         return membresiaRepository.save(membresia);
     }
+    public Membresia actualizarMembresia(Integer id, Membresia detMembresia){
+        Membresia membresiaExis = membresiaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Membresia no encontrada"));
+
+        membresiaExis.setNombre(detMembresia.getNombre());
+        membresiaExis.setPrecio(detMembresia.getPrecio());
+        membresiaExis.setDuracionDias(detMembresia.getDuracionDias());
+        membresiaExis.setDescripcion(detMembresia.getDescripcion());
+
+        return membresiaRepository.save(membresiaExis);
+    }
+    public void eliminarMembresia(Integer id){
+        membresiaRepository.deleteById(id);
+    }
 }

@@ -40,4 +40,27 @@ public class SuscripcionService {
         }
         return suscripcionRepository.save(suscripcion);
     }
+    public Suscripcion actualizar(Integer id, Suscripcion detalles){
+        Suscripcion existente = suscripcionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Suscripción no encontrada"));
+
+        if(detalles.getCliente() != null && detalles.getCliente().getIdCliente() != null){
+            existente.setCliente(detalles.getCliente());
+        }
+        if(detalles.getMembresia() != null && detalles.getMembresia().getIdMembresia() != null){
+            Membresia membresiaReal = membresiaRepository.findById(detalles.getMembresia().getIdMembresia()).orElse(null);
+            if(membresiaReal != null){
+                existente.setMembresia(membresiaReal);
+                LocalDate inicio = existente.getFechaInicio();
+                existente.setFechaFin(inicio.plusDays(membresiaReal.getDuracionDias()));
+            }
+        }
+        if(detalles.getEstado() != null){
+            existente.setEstado(detalles.getEstado());
+        }
+        return suscripcionRepository.save(existente);
+    }
+    public void eliminar(Integer id){
+        suscripcionRepository.deleteById(id);
+    }
 }

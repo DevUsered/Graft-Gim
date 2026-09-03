@@ -23,4 +23,12 @@ public class SuscripcionController {
     public Suscripcion crearSuscripcion(@RequestBody Suscripcion suscripcion) {
         return suscripcionService.guardar(suscripcion);
     }
+    @PutMapping("/{id}")
+    public Suscripcion actualizarSuscripcion(@PathVariable Integer id, @RequestBody Suscripcion suscripcion){
+        return suscripcionService.actualizar(id, suscripcion);
+    }
+    @DeleteMapping("/{id}")
+    public void eliminarSuscripcion(@PathVariable Integer id){
+        suscripcionService.eliminar(id);
+    }
 }

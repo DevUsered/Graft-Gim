@@ -23,4 +23,12 @@ public class MembresiaController {
     public Membresia crearMembresia(@RequestBody Membresia membresia) {
         return membresiaService.guardarMembresia(membresia);
     }
+    @PutMapping("/{id}")
+    public Membresia actulizarMembresia(@PathVariable Integer id, @RequestBody Membresia membresia){
+        return membresiaService.actualizarMembresia(id, membresia);
+    }
+    @DeleteMapping("/{id}")
+    public void eliminarMembresia(@PathVariable Integer id){
+        membresiaService.eliminarMembresia(id);
+    }
 }
