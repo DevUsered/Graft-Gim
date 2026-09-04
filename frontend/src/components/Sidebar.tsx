@@ -66,6 +66,12 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
               {isOpen && <span className="ml-4 tracking-wide">Suscripciones</span>}
             </NavLink>
           </li>
+          <li>
+            <NavLink to="/finanzas" className={linkClasses}>
+              <span className="text-2xl">💰</span>
+              {isOpen && <span className="ml-4 tracking-wide"> Caja y Finanzas</span>}
+            </NavLink>
+          </li>
         </ul>
       </nav>
 

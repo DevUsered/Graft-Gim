@@ -6,7 +6,8 @@ import Clientes from './pages/Clientes';
 import Membresias from './pages/Membresias';
 import Suscripciones from './pages/Suscripciones';
 import Recepcion from './pages/Recepcion';
-import Login from './pages/Login'; // Importamos el Login
+import Login from './pages/Login';
+import Finanzas from './pages/Finanzas'; 
 
 export default function App() {
   // Verificamos si ya hay un token en la memoria
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/membresias" element={<Membresias />} />
             <Route path="/suscripciones" element={<Suscripciones />} />
             <Route path="/recepcion" element={<Recepcion />} />
+            <Route path="/finanzas" element={<Finanzas />} />
           </Routes>
         </main>
 

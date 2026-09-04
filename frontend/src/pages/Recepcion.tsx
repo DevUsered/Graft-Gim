@@ -99,31 +99,62 @@ export default function Recepcion() {
     setMensaje(null);
 
     try {
+      // 1. Buscamos al Cliente Casual
       const resClientes = await fetch('http://localhost:8080/api/clientes', {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
-        }
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
-      const clientes: Cliente[] = await resClientes.json();
-      const clienteCasual = clientes.find(c => c.carnetIdentidad === '0' || c.carnetIdentidad === '0000');
+      // Le decimos a TypeScript que esto es un arreglo de clientes
+      const clientes: Cliente[] = await resClientes.json(); 
+      const clienteCasual = clientes.find((c: Cliente) => c.carnetIdentidad === '0' || c.carnetIdentidad === '0000');
 
       if (!clienteCasual) {
-        setMensaje({ texto: 'Error: Crea un cliente con CI "0" llamado "Cliente Casual" en el directorio.', tipo: 'error' });
-        return;
+        setMensaje({ texto: 'Error: Crea un cliente con CI "0" llamado "Cliente Casual".', tipo: 'error' });
+        setCargando(false); return;
       }
 
+      // 2. Buscamos el plan llamado "Pase Diario"
+      const resPlanes = await fetch('http://localhost:8080/api/membresias', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      });
+      
+      // Creamos un molde (tipo) rápido para que TypeScript reconozca el precio
+      type TipoPlan = { idMembresia: number; nombre: string; precio: number };
+      const planes: TipoPlan[] = await resPlanes.json();
+      
+      const planDiario = planes.find((p: TipoPlan) => 
+        p.nombre.toLowerCase().includes('pase') || p.nombre.toLowerCase().includes('diario')
+      );
+
+      if (!planDiario) {
+        setMensaje({ texto: 'Error: Crea un plan llamado "Pase Diario" en la sección de Planes primero.', tipo: 'error' });
+        setCargando(false); return;
+      }
+
+      // 3. Registramos la Asistencia
       await fetch('http://localhost:8080/api/asistencias', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+          'Authorization': 'Bearer ' + localStorage.getItem('token') 
         },
         body: JSON.stringify({ cliente: { idCliente: clienteCasual.idCliente } })
       });
 
-      setMensaje({ texto: '⚡ Pase diario registrado con éxito (Cliente Casual)', tipo: 'exito' });
+      // 4. Mandamos a caja el precio exacto del plan
+      await fetch('http://localhost:8080/api/pagos', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+          monto: planDiario.precio, 
+          concepto: planDiario.nombre + ' (Cliente Casual)',
+          metodoPago: 'EFECTIVO'
+        })
+      });
+
+      setMensaje({ texto: `⚡ ${planDiario.nombre} cobrado (Bs. ${planDiario.precio.toFixed(2)}) con éxito`, tipo: 'exito' });
       setTimeout(() => setMensaje(null), 3000);
 
     } catch (error) {

@@ -52,3 +52,11 @@ CREATE TABLE usuarios (
 );
 INSERT INTO usuarios (username, password, rol)
 VALUES ('edgar', '$2a$10$D.pB49U6/L8r9Z8z5T7z.O1/X34m9t61.P79O.g14/Q8q5X.T5/4q', 'ADMIN');
+
+CREATE TABLE pago (
+    id_pago SERIAL PRIMARY KEY ,
+    monto DECIMAL(10, 2) NOT NULL,
+    concepto VARCHAR(255) NOT NULL,
+    metodo_pago VARCHAR(50) NOT NULL,
+    fecha_hora TIMESTAMP NOT NULL
+);

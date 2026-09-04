@@ -10,7 +10,7 @@ interface Suscripcion {
 }
 
 interface Cliente { idCliente: number; nombreCompleto: string; }
-interface Membresia { idMembresia: number; nombre: string; }
+interface Membresia { idMembresia: number; nombre: string; precio: number; }
 
 export default function Suscripciones() {
   const [suscripciones, setSuscripciones] = useState<Suscripcion[]>([]);
@@ -18,8 +18,6 @@ export default function Suscripciones() {
   const [membresias, setMembresias] = useState<Membresia[]>([]);
   
   const [mostrarModal, setMostrarModal] = useState(false);
-  
-  // Estados para manejar la edición y notificaciones
   const [suscripcionEditando, setSuscripcionEditando] = useState<number | null>(null);
   const [mostrarToast, setMostrarToast] = useState(false);
   const [mensajeToast, setMensajeToast] = useState("");
@@ -27,27 +25,21 @@ export default function Suscripciones() {
   const [formulario, setFormulario] = useState({
     idCliente: '',
     idMembresia: '',
-    estado: 'VIGENTE' // Agregamos estado para poder editarlo
+    estado: 'VIGENTE'
   });
 
   const cargarDatos = () => {
-    // 1. Agregamos el Token al GET de Suscripciones
     fetch('http://localhost:8080/api/suscripciones', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    })
-      .then(res => res.json()).then(datos => setSuscripciones(datos));
+    }).then(res => res.json()).then(datos => setSuscripciones(datos));
       
-    // 2. Agregamos el Token al GET de Clientes
     fetch('http://localhost:8080/api/clientes', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    })
-      .then(res => res.json()).then(datos => setClientes(datos));
+    }).then(res => res.json()).then(datos => setClientes(datos));
       
-    // 3. Agregamos el Token al GET de Membresias
     fetch('http://localhost:8080/api/membresias', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    })
-      .then(res => res.json()).then(datos => setMembresias(datos));
+    }).then(res => res.json()).then(datos => setMembresias(datos));
   };
 
   useEffect(() => {
@@ -89,7 +81,6 @@ export default function Suscripciones() {
       
     const metodo = suscripcionEditando ? 'PUT' : 'POST';
 
-    // 4. Agregamos el Token al POST/PUT (Guardar/Editar)
     fetch(url, {
       method: metodo,
       headers: { 
@@ -100,12 +91,32 @@ export default function Suscripciones() {
     })
     .then(respuesta => respuesta.json())
     .then(() => {
+      if (!suscripcionEditando) {
+        // AUTOMATIZACIÓN: Busca el precio fijo del plan y lo cobra sin preguntar
+        const membresiaSeleccionada = membresias.find(m => m.idMembresia === parseInt(formulario.idMembresia));
+        const clienteSeleccionado = clientes.find(c => c.idCliente === parseInt(formulario.idCliente));
+
+        if (membresiaSeleccionada && clienteSeleccionado) {
+          fetch('http://localhost:8080/api/pagos', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            body: JSON.stringify({
+              monto: membresiaSeleccionada.precio, // Usa el precio exacto del plan
+              concepto: `Plan: ${membresiaSeleccionada.nombre} - ${clienteSeleccionado.nombreCompleto}`,
+              metodoPago: 'EFECTIVO' 
+            })
+          }).catch(err => console.error("Error al registrar el pago:", err));
+        }
+      }
       setMostrarModal(false);
       setFormulario({ idCliente: '', idMembresia: '', estado: 'VIGENTE' }); 
       setSuscripcionEditando(null);
       cargarDatos();
       
-      setMensajeToast(suscripcionEditando ? "Suscripción actualizada exitosamente" : "Suscripción registrada con éxito");
+      setMensajeToast(suscripcionEditando ? "Suscripción actualizada" : "Inscrito y cobrado con éxito");
       setMostrarToast(true);
       setTimeout(() => setMostrarToast(false), 3000);
     })
@@ -113,18 +124,14 @@ export default function Suscripciones() {
   };
 
   const eliminarSuscripcion = (id: number) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar esta suscripción del historial?")) {
-      
-      // 5. Agregamos el Token al DELETE (Eliminar)
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta suscripción?")) {
       fetch(`http://localhost:8080/api/suscripciones/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        }
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       })
       .then(() => {
         cargarDatos();
-        setMensajeToast("Suscripción eliminada exitosamente");
+        setMensajeToast("Suscripción eliminada");
         setMostrarToast(true);
         setTimeout(() => setMostrarToast(false), 3000);
       })
@@ -137,7 +144,7 @@ export default function Suscripciones() {
       <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
           <h2 className="text-4xl font-black text-[#1a1446] tracking-tight">Suscripciones Activas</h2>
-          <p className="text-gray-500 mt-2 font-medium">Inscribe a tus clientes en los planes del gimnasio.</p>
+          <p className="text-gray-500 mt-2 font-medium">Inscribe a tus clientes. El precio se calcula solo.</p>
         </div>
         <button 
           onClick={abrirModalCrear}
@@ -147,7 +154,6 @@ export default function Suscripciones() {
         </button>
       </header>
 
-      {/* --- INICIO DEL MODAL --- */}
       {mostrarModal && (
         <div className="fixed inset-0 bg-[#1a1446]/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100">
@@ -156,7 +162,6 @@ export default function Suscripciones() {
             </h3>
             
             <form onSubmit={guardarSuscripcion} className="space-y-5">
-              
               <div>
                 <label className="block text-sm font-bold text-gray-500 mb-2 uppercase tracking-wide">Seleccionar Cliente</label>
                 <select 
@@ -183,7 +188,6 @@ export default function Suscripciones() {
                 </select>
               </div>
 
-              {/* Si estamos editando, mostramos la opción para cambiar el estado */}
               {suscripcionEditando && (
                 <div>
                   <label className="block text-sm font-bold text-gray-500 mb-2 uppercase tracking-wide">Estado</label>
@@ -208,7 +212,7 @@ export default function Suscripciones() {
                   type="submit"
                   className="bg-[#4a24ff] hover:bg-[#3616d9] text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_4px_12px_rgba(74,36,255,0.2)]"
                 >
-                  {suscripcionEditando ? 'Guardar Cambios' : 'Inscribir'}
+                  {suscripcionEditando ? 'Guardar Cambios' : 'Inscribir y Cobrar'}
                 </button>
               </div>
             </form>
@@ -216,7 +220,7 @@ export default function Suscripciones() {
         </div>
       )}
 
-      {/* --- TABLA DE SUSCRIPCIONES --- */}
+      {/* --- TABLA DE SUSCRIPCIONES (IGUAL A LA QUE YA TENÍAS) --- */}
       <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 overflow-hidden relative z-0">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -262,14 +266,12 @@ export default function Suscripciones() {
                     <button 
                       onClick={() => abrirModalEditar(sub)}
                       className="w-10 h-10 inline-flex items-center justify-center rounded-xl text-blue-500 hover:bg-blue-50 transition-colors"
-                      title="Editar"
                     >
                       ✏️
                     </button>
                     <button 
                       onClick={() => eliminarSuscripcion(sub.idSuscripcion)}
                       className="w-10 h-10 inline-flex items-center justify-center rounded-xl text-red-500 hover:bg-red-50 transition-colors"
-                      title="Eliminar"
                     >
                       🗑️
                     </button>
@@ -281,7 +283,6 @@ export default function Suscripciones() {
         </table>
       </div>
 
-      {/* NOTIFICACIÓN TOAST FLOTANTE */}
       {mostrarToast && (
         <div className="fixed bottom-8 right-8 bg-[#1a1446] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 z-50 animate-bounce">
           <div className="bg-[#00a870] text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">✓</div>
