@@ -25,7 +25,12 @@ export default function Membresias() {
   });
 
   const cargarMembresias = () => {
-    fetch('http://localhost:8080/api/membresias')
+    fetch('http://localhost:8080/api/membresias',{
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+    })
       .then(respuesta => respuesta.json())
       .then(datos => setMembresias(datos))
       .catch(error => console.error("Error conectando al backend:", error));
@@ -69,7 +74,9 @@ export default function Membresias() {
 
     fetch(url, {
       method: metodo,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+       },
       body: JSON.stringify({
         ...formulario,
         precio: parseFloat(formulario.precio),
@@ -94,7 +101,10 @@ export default function Membresias() {
   const eliminarMembresia = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este plan? Si hay clientes suscritos a él, podría causar conflictos.")) {
       fetch(`http://localhost:8080/api/membresias/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
       })
       .then(() => {
         cargarMembresias();

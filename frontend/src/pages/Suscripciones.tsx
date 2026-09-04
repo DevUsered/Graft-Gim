@@ -31,11 +31,22 @@ export default function Suscripciones() {
   });
 
   const cargarDatos = () => {
-    fetch('http://localhost:8080/api/suscripciones')
+    // 1. Agregamos el Token al GET de Suscripciones
+    fetch('http://localhost:8080/api/suscripciones', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
       .then(res => res.json()).then(datos => setSuscripciones(datos));
-    fetch('http://localhost:8080/api/clientes')
+      
+    // 2. Agregamos el Token al GET de Clientes
+    fetch('http://localhost:8080/api/clientes', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
       .then(res => res.json()).then(datos => setClientes(datos));
-    fetch('http://localhost:8080/api/membresias')
+      
+    // 3. Agregamos el Token al GET de Membresias
+    fetch('http://localhost:8080/api/membresias', {
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    })
       .then(res => res.json()).then(datos => setMembresias(datos));
   };
 
@@ -78,9 +89,13 @@ export default function Suscripciones() {
       
     const metodo = suscripcionEditando ? 'PUT' : 'POST';
 
+    // 4. Agregamos el Token al POST/PUT (Guardar/Editar)
     fetch(url, {
       method: metodo,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
       body: JSON.stringify(cargaUtil)
     })
     .then(respuesta => respuesta.json())
@@ -99,8 +114,13 @@ export default function Suscripciones() {
 
   const eliminarSuscripcion = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta suscripción del historial?")) {
+      
+      // 5. Agregamos el Token al DELETE (Eliminar)
       fetch(`http://localhost:8080/api/suscripciones/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
       })
       .then(() => {
         cargarDatos();

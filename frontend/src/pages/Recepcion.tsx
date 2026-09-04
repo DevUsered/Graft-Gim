@@ -43,7 +43,13 @@ export default function Recepcion() {
     setHistorial([]);
 
     try {
-      const resClientes = await fetch('http://localhost:8080/api/clientes');
+      const resClientes = await fetch('http://localhost:8080/api/clientes', {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+        }
+      });
       const clientes: Cliente[] = await resClientes.json();
       const clienteEncontrado = clientes.find(c => c.carnetIdentidad === ciBuscado.trim());
 
@@ -53,13 +59,25 @@ export default function Recepcion() {
         return;
       }
 
-      const resSuscripciones = await fetch('http://localhost:8080/api/suscripciones');
+      const resSuscripciones = await fetch('http://localhost:8080/api/suscripciones', {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+        }
+      });
       const suscripciones: Suscripcion[] = await resSuscripciones.json();
       const suscripcionActiva = suscripciones.find(
         sub => sub.cliente.idCliente === clienteEncontrado.idCliente && sub.estado === 'VIGENTE'
       );
 
-      const resAsistencias = await fetch('http://localhost:8080/api/asistencias');
+      const resAsistencias = await fetch('http://localhost:8080/api/asistencias', {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+        }
+      });
       const asistenciasTotales: Asistencia[] = await resAsistencias.json();
       
       // Guardamos TODAS las asistencias de este cliente para armar el calendario
@@ -81,7 +99,13 @@ export default function Recepcion() {
     setMensaje(null);
 
     try {
-      const resClientes = await fetch('http://localhost:8080/api/clientes');
+      const resClientes = await fetch('http://localhost:8080/api/clientes', {
+        method: 'GET',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+        }
+      });
       const clientes: Cliente[] = await resClientes.json();
       const clienteCasual = clientes.find(c => c.carnetIdentidad === '0' || c.carnetIdentidad === '0000');
 
@@ -92,7 +116,10 @@ export default function Recepcion() {
 
       await fetch('http://localhost:8080/api/asistencias', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+        },
         body: JSON.stringify({ cliente: { idCliente: clienteCasual.idCliente } })
       });
 
@@ -162,7 +189,10 @@ export default function Recepcion() {
     try {
       const res = await fetch('http://localhost:8080/api/asistencias', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
+        },
         body: JSON.stringify({ cliente: { idCliente: resultado.cliente.idCliente } })
       });
       const nuevaAsistencia = await res.json();

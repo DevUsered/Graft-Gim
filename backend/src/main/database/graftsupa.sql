@@ -31,3 +31,24 @@ CREATE TABLE suscripcion (
                              FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente) ON DELETE CASCADE,
                              FOREIGN KEY (id_membresia) REFERENCES membresia(id_membresia) ON DELETE RESTRICT
 );
+
+CREATE TABLE asistencia(
+    id_asistencia SERIAL PRIMARY KEY ,
+    id_cliente INT NOT NULL,
+    fecha_hora TIMESTAMP NOT NULL,
+    CONSTRAINT fk_asistencia_cliente
+                       FOREIGN KEY (id_cliente)
+                       REFERENCES cliente(id_cliente)
+                       ON DELETE CASCADE
+);
+INSERT INTO cliente (carnet_identidad, nombre_completo)
+VALUES (0, 'Cliente Casual');
+
+CREATE TABLE usuarios (
+    id_usuario SERIAL PRIMARY KEY ,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL
+);
+INSERT INTO usuarios (username, password, rol)
+VALUES ('edgar', '$2a$10$D.pB49U6/L8r9Z8z5T7z.O1/X34m9t61.P79O.g14/Q8q5X.T5/4q', 'ADMIN');

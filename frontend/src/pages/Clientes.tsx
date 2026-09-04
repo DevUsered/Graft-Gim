@@ -25,7 +25,11 @@ export default function Clientes() {
   });
 
   const cargarClientes = () => {
-    fetch('http://localhost:8080/api/clientes')
+    fetch('http://localhost:8080/api/clientes',{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    })
       .then(respuesta => respuesta.json())
       .then(datos => setClientes(datos))
       .catch(error => console.error("Error conectando al backend:", error));
@@ -68,7 +72,9 @@ export default function Clientes() {
 
     fetch(url, {
       method: metodo,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+       },
       body: JSON.stringify(formulario)
     })
     .then(respuesta => respuesta.json())
@@ -88,8 +94,12 @@ export default function Clientes() {
   // NUEVO: Función para eliminar
   const eliminarCliente = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.")) {
-      fetch(`http://localhost:8080/api/clientes/${id}`, {
-        method: 'DELETE'
+      fetch(`http://localhost:8080/api/clientes/${id}`, 
+        {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
       })
       .then(() => {
         cargarClientes();
