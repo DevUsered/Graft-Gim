@@ -37,6 +37,12 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
       <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-1">
           <li>
+            <NavLink to="/superadmin" className={linkClasses}>
+              <span className="text-2xl">👑</span>
+              {isOpen && <span className="ml-4 tracking-wide text-amber-500">SaS Admin</span>}
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/" className={linkClasses}>
               <span className="text-2xl">📊</span>
               {isOpen && <span className="ml-4 tracking-wide">Dashboard</span>}

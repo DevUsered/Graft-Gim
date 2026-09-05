@@ -8,6 +8,7 @@ import Suscripciones from './pages/Suscripciones';
 import Recepcion from './pages/Recepcion';
 import Login from './pages/Login';
 import Finanzas from './pages/Finanzas'; 
+import SuperAdmin from './pages/SuperAdmin'; 
 
 export default function App() {
   // Verificamos si ya hay un token en la memoria
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/suscripciones" element={<Suscripciones />} />
             <Route path="/recepcion" element={<Recepcion />} />
             <Route path="/finanzas" element={<Finanzas />} />
+            <Route path="/superadmin" element={<SuperAdmin />} />
           </Routes>
         </main>
 
