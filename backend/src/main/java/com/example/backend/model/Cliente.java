@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "cliente")
-public class Cliente {
+public class Cliente extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

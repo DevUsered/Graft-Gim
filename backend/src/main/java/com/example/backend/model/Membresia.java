@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "membresia")
-public class Membresia {
+public class Membresia extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

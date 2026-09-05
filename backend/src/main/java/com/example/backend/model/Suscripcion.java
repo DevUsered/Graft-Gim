@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "suscripcion")
-public class Suscripcion {
+public class Suscripcion extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
