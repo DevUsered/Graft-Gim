@@ -20,6 +20,17 @@ public class Usuario {
     @Column(nullable = false)
     private String rol;
 
+    @Column(name = "id_gimnasio")
+    private Integer idGimnasio;
+
+    public Integer getIdGimnasio() {
+        return idGimnasio;
+    }
+
+    public void setIdGimnasio(Integer idGimnasio) {
+        this.idGimnasio = idGimnasio;
+    }
+
     public Integer getIdUsuario() {
         return idUsuario;
     }

@@ -1,5 +1,7 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.Usuario;
+import com.example.backend.repository.UsuarioRepository;
 import com.example.backend.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +25,8 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     // Esta clase interna sirve para recibir los datos de React
     public static class AuthRequest {
@@ -40,10 +44,12 @@ public class AuthController {
         } catch (Exception e) {
             throw new Exception("Usuario o contraseña incorrectos", e);
         }
+        Usuario usuarioDb = usuarioRepository.findByUsername(authRequest.username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Si la contraseña era correcta, le fabricamos un token
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username);
-        final String jwt = jwtUtil.generateToken(userDetails);
+        final String jwt = jwtUtil.generateToken(userDetails, usuarioDb.getIdGimnasio());
 
         // Se lo devolvemos a React en formato JSON
         return Map.of("token", jwt);

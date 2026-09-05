@@ -1,5 +1,24 @@
 import { useState, useEffect } from 'react';
 
+// 1. Definimos las interfaces para que TypeScript sepa qué datos estamos manejando
+interface Pago {
+  monto: number;
+  fechaHora: string;
+}
+
+interface Suscripcion {
+  estado: string;
+  fechaFin: string;
+}
+
+interface Asistencia {
+  fechaHora: string;
+}
+
+interface Cliente {
+  idCliente: number;
+}
+
 export default function Dashboard() {
   const [metricas, setMetricas] = useState({
     ingresosHoy: 0,
@@ -14,7 +33,6 @@ export default function Dashboard() {
       try {
         const headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
         
-        // Ejecutamos las 4 consultas al mismo tiempo para que cargue rapidísimo
         const [resPagos, resSuscripciones, resAsistencias, resClientes] = await Promise.all([
           fetch('http://localhost:8080/api/pagos', { headers }),
           fetch('http://localhost:8080/api/suscripciones', { headers }),
@@ -22,29 +40,28 @@ export default function Dashboard() {
           fetch('http://localhost:8080/api/clientes', { headers })
         ]);
 
-        const pagos = await resPagos.json();
-        const suscripciones = await resSuscripciones.json();
-        const asistencias = await resAsistencias.json();
-        const clientes = await resClientes.json();
+        // 2. Le indicamos a TypeScript qué tipo de arreglo es cada respuesta
+        const pagos: Pago[] = await resPagos.json();
+        const suscripciones: Suscripcion[] = await resSuscripciones.json();
+        const asistencias: Asistencia[] = await resAsistencias.json();
+        const clientes: Cliente[] = await resClientes.json();
 
-        // 1. Calcular Ingresos de Hoy
+        // 3. Ya no necesitamos poner 'any', TypeScript infiere los tipos automáticamente
         const hoyStr = new Date().toISOString().split('T')[0];
+        
         const ingresosHoy = pagos
-          .filter((p: any) => p.fechaHora.startsWith(hoyStr))
-          .reduce((suma: number, p: any) => suma + p.monto, 0);
+          .filter(p => p.fechaHora.startsWith(hoyStr))
+          .reduce((suma, p) => suma + p.monto, 0);
 
-        // 2. Calcular Clientes con Suscripción Vigente
-        const clientesActivos = suscripciones.filter((s: any) => {
+        const clientesActivos = suscripciones.filter(s => {
           if (s.estado !== 'VIGENTE') return false;
-          // Verificamos si la fecha de fin aún no ha pasado
           const hoy = new Date();
           hoy.setHours(0, 0, 0, 0);
           const fin = new Date(s.fechaFin + 'T00:00:00');
           return fin >= hoy;
         }).length;
 
-        // 3. Calcular Asistencias de Hoy
-        const asistenciasHoy = asistencias.filter((a: any) => a.fechaHora.startsWith(hoyStr)).length;
+        const asistenciasHoy = asistencias.filter(a => a.fechaHora.startsWith(hoyStr)).length;
 
         setMetricas({
           ingresosHoy,
@@ -63,7 +80,6 @@ export default function Dashboard() {
     cargarDashboard();
   }, []);
 
-  // Obtenemos el nombre del administrador para darle la bienvenida
   const adminName = localStorage.getItem('username') || 'Administrador';
 
   if (cargando) {
