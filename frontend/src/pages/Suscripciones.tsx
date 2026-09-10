@@ -29,15 +29,15 @@ export default function Suscripciones() {
   });
 
   const cargarDatos = () => {
-    fetch('https://graftgym-api.onrender.com/api/suscripciones', {
+    fetch('${import.meta.env.VITE_API_URL}/api/suscripciones', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setSuscripciones(datos));
       
-    fetch('https://graftgym-api.onrender.com/api/clientes', {
+    fetch('${import.meta.env.VITE_API_URL}/api/clientes', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setClientes(datos));
       
-    fetch('https://graftgym-api.onrender.com/api/membresias', {
+    fetch('${import.meta.env.VITE_API_URL}/api/membresias', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setMembresias(datos));
   };
@@ -76,8 +76,8 @@ export default function Suscripciones() {
     };
 
     const url = suscripcionEditando 
-      ? `https://graftgym-api.onrender.com/api/suscripciones/${suscripcionEditando}`
-      : 'https://graftgym-api.onrender.com/api/suscripciones';
+      ? `${import.meta.env.VITE_API_URL}/api/suscripciones/${suscripcionEditando}`
+      : '${import.meta.env.VITE_API_URL}/api/suscripciones';
       
     const metodo = suscripcionEditando ? 'PUT' : 'POST';
 
@@ -97,7 +97,7 @@ export default function Suscripciones() {
         const clienteSeleccionado = clientes.find(c => c.idCliente === parseInt(formulario.idCliente));
 
         if (membresiaSeleccionada && clienteSeleccionado) {
-          fetch('https://graftgym-api.onrender.com/api/pagos', {
+          fetch('${import.meta.env.VITE_API_URL}/api/pagos', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export default function Suscripciones() {
 
   const eliminarSuscripcion = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta suscripción?")) {
-      fetch(`https://graftgym-api.onrender.com/api/suscripciones/${id}`, {
+      fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       })

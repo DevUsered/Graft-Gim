@@ -17,7 +17,7 @@ export default function SuperAdmin() {
   const [cargando, setCargando] = useState(false);
 
   const cargarGimnasios = () => {
-    fetch('https://graftgym-api.onrender.com/api/superadmin/gimnasios', {
+    fetch('${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
     .then(res => res.json())
@@ -44,7 +44,7 @@ export default function SuperAdmin() {
     e.preventDefault();
     setCargando(true);
     try {
-      const res = await fetch('https://graftgym-api.onrender.com/api/superadmin/gimnasios', {
+      const res = await fetch('${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
         body: JSON.stringify(formulario)
@@ -64,7 +64,7 @@ export default function SuperAdmin() {
     const nuevoEstado = estadoActual === 'ACTIVO' ? 'CLAUSURADO' : 'ACTIVO';
     if (!window.confirm(`¿Seguro que deseas cambiar el estado a ${nuevoEstado}?`)) return;
     try {
-      await fetch(`https://graftgym-api.onrender.com/api/superadmin/gimnasios/${id}/estado`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios/${id}/estado`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
         body: JSON.stringify({ estado: nuevoEstado })
@@ -78,7 +78,7 @@ export default function SuperAdmin() {
     if (!meses || isNaN(Number(meses))) return;
 
     try {
-      await fetch(`https://graftgym-api.onrender.com/api/superadmin/gimnasios/${id}/renovar`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios/${id}/renovar`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
         body: JSON.stringify({ meses: Number(meses) })
@@ -90,7 +90,7 @@ export default function SuperAdmin() {
   const enviarAviso = async (id: number) => {
     if(!window.confirm("¿Enviar recordatorio de pago al cliente? (Simulado)")) return;
     try {
-      await fetch(`https://graftgym-api.onrender.com/api/superadmin/gimnasios/${id}/recordatorio`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios/${id}/recordatorio`, {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });

@@ -20,7 +20,7 @@ export default function Finanzas() {
   });
 
   const cargarPagos = () => {
-    fetch('https://graftgym-api.onrender.com/api/pagos', {
+    fetch('${import.meta.env.VITE_API_URL}/api/pagos', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
       .then(res => res.json())
@@ -45,7 +45,7 @@ export default function Finanzas() {
   const guardarPago = (e: React.FormEvent) => {
     e.preventDefault();
 
-    fetch('https://graftgym-api.onrender.com/api/pagos', {
+    fetch('${import.meta.env.VITE_API_URL}/api/pagos', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',

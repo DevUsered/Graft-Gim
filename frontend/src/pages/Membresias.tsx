@@ -25,7 +25,7 @@ export default function Membresias() {
   });
 
   const cargarMembresias = () => {
-    fetch('https://graftgym-api.onrender.com/api/membresias',{
+    fetch('${import.meta.env.VITE_API_URL}/api/membresias',{
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -67,8 +67,8 @@ export default function Membresias() {
     e.preventDefault();
 
     const url = membresiaEditando 
-      ? `https://graftgym-api.onrender.com/api/membresias/${membresiaEditando}`
-      : 'https://graftgym-api.onrender.com/api/membresias';
+      ? `${import.meta.env.VITE_API_URL}/api/membresias/${membresiaEditando}`
+      : '${import.meta.env.VITE_API_URL}/api/membresias';
       
     const metodo = membresiaEditando ? 'PUT' : 'POST';
 
@@ -100,7 +100,7 @@ export default function Membresias() {
   // NUEVO: Función para eliminar
   const eliminarMembresia = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este plan? Si hay clientes suscritos a él, podría causar conflictos.")) {
-      fetch(`https://graftgym-api.onrender.com/api/membresias/${id}`, {
+      fetch(`${import.meta.env.VITE_API_URL}/api/membresias/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')

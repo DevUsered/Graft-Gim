@@ -34,10 +34,10 @@ export default function Dashboard() {
         const headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
         
         const [resPagos, resSuscripciones, resAsistencias, resClientes] = await Promise.all([
-          fetch('https://graftgym-api.onrender.com/api/pagos', { headers }),
-          fetch('https://graftgym-api.onrender.com/api/suscripciones', { headers }),
-          fetch('https://graftgym-api.onrender.com/api/asistencias', { headers }),
-          fetch('https://graftgym-api.onrender.com/api/clientes', { headers })
+          fetch('${import.meta.env.VITE_API_URL}/api/pagos', { headers }),
+          fetch('${import.meta.env.VITE_API_URL}/api/suscripciones', { headers }),
+          fetch('${import.meta.env.VITE_API_URL}/api/asistencias', { headers }),
+          fetch('${import.meta.env.VITE_API_URL}/api/clientes', { headers })
         ]);
 
         // 2. Le indicamos a TypeScript qué tipo de arreglo es cada respuesta
