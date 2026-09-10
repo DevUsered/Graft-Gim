@@ -77,7 +77,13 @@ export default function Clientes() {
        },
       body: JSON.stringify(formulario)
     })
-    .then(respuesta => respuesta.json())
+    .then(async (respuesta) =>{
+      if(!respuesta.ok){
+        const errorTexto = await respuesta.text();
+        throw new Error(errorTexto || "Ocurrio un error al guardar el cliente.");
+      }
+      return respuesta.json();
+    })
     .then(() => {
       setMostrarModal(false); 
       setFormulario({ carnetIdentidad: '', nombreCompleto: '', telefono: '' }); 
