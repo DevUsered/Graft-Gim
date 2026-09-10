@@ -29,15 +29,15 @@ export default function Suscripciones() {
   });
 
   const cargarDatos = () => {
-    fetch('${import.meta.env.VITE_API_URL}/api/suscripciones', {
+    fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setSuscripciones(datos));
       
-    fetch('${import.meta.env.VITE_API_URL}/api/clientes', {
+    fetch(`${import.meta.env.VITE_API_URL}/api/clientes`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setClientes(datos));
       
-    fetch('${import.meta.env.VITE_API_URL}/api/membresias', {
+    fetch(`${import.meta.env.VITE_API_URL}/api/membresias`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setMembresias(datos));
   };
@@ -77,7 +77,7 @@ export default function Suscripciones() {
 
     const url = suscripcionEditando 
       ? `${import.meta.env.VITE_API_URL}/api/suscripciones/${suscripcionEditando}`
-      : '${import.meta.env.VITE_API_URL}/api/suscripciones';
+      : `${import.meta.env.VITE_API_URL}/api/suscripciones`;
       
     const metodo = suscripcionEditando ? 'PUT' : 'POST';
 
@@ -97,7 +97,7 @@ export default function Suscripciones() {
         const clienteSeleccionado = clientes.find(c => c.idCliente === parseInt(formulario.idCliente));
 
         if (membresiaSeleccionada && clienteSeleccionado) {
-          fetch('${import.meta.env.VITE_API_URL}/api/pagos', {
+          fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',

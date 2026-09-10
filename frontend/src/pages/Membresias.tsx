@@ -25,7 +25,7 @@ export default function Membresias() {
   });
 
   const cargarMembresias = () => {
-    fetch('${import.meta.env.VITE_API_URL}/api/membresias',{
+    fetch(`${import.meta.env.VITE_API_URL}/api/membresias`,{
       headers: { 
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -68,7 +68,7 @@ export default function Membresias() {
 
     const url = membresiaEditando 
       ? `${import.meta.env.VITE_API_URL}/api/membresias/${membresiaEditando}`
-      : '${import.meta.env.VITE_API_URL}/api/membresias';
+      : `${import.meta.env.VITE_API_URL}/api/membresias`;
       
     const metodo = membresiaEditando ? 'PUT' : 'POST';
 

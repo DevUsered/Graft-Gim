@@ -25,7 +25,7 @@ export default function Clientes() {
   });
 
   const cargarClientes = () => {
-    fetch('${import.meta.env.VITE_API_URL}}/api/clientes',{
+    fetch(`${import.meta.env.VITE_API_URL}}/api/clientes`,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }
@@ -66,7 +66,7 @@ export default function Clientes() {
 
     const url = clienteEditando 
       ? `${import.meta.env.VITE_API_URL}}/api/clientes/${clienteEditando}`
-      : '${import.meta.env.VITE_API_URL}}/api/clientes';
+      : `${import.meta.env.VITE_API_URL}}/api/clientes`;
       
     const metodo = clienteEditando ? 'PUT' : 'POST';
 

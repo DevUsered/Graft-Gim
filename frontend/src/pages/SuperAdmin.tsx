@@ -17,7 +17,7 @@ export default function SuperAdmin() {
   const [cargando, setCargando] = useState(false);
 
   const cargarGimnasios = () => {
-    fetch('${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios', {
+    fetch(`${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios`, {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     })
     .then(res => res.json())
@@ -44,7 +44,7 @@ export default function SuperAdmin() {
     e.preventDefault();
     setCargando(true);
     try {
-      const res = await fetch('${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/superadmin/gimnasios`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
         body: JSON.stringify(formulario)
