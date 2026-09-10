@@ -12,7 +12,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
     setError('');
 
     try {
-      const respuesta = await fetch('http://localhost:8080/auth/login', {
+      const respuesta = await fetch('https://graftgym-api.onrender.com/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })

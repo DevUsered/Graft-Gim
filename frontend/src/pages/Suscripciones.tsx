@@ -29,15 +29,15 @@ export default function Suscripciones() {
   });
 
   const cargarDatos = () => {
-    fetch('http://localhost:8080/api/suscripciones', {
+    fetch('https://graftgym-api.onrender.com/api/suscripciones', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setSuscripciones(datos));
       
-    fetch('http://localhost:8080/api/clientes', {
+    fetch('https://graftgym-api.onrender.com/api/clientes', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setClientes(datos));
       
-    fetch('http://localhost:8080/api/membresias', {
+    fetch('https://graftgym-api.onrender.com/api/membresias', {
       headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
     }).then(res => res.json()).then(datos => setMembresias(datos));
   };
@@ -76,8 +76,8 @@ export default function Suscripciones() {
     };
 
     const url = suscripcionEditando 
-      ? `http://localhost:8080/api/suscripciones/${suscripcionEditando}`
-      : 'http://localhost:8080/api/suscripciones';
+      ? `https://graftgym-api.onrender.com/api/suscripciones/${suscripcionEditando}`
+      : 'https://graftgym-api.onrender.com/api/suscripciones';
       
     const metodo = suscripcionEditando ? 'PUT' : 'POST';
 
@@ -97,7 +97,7 @@ export default function Suscripciones() {
         const clienteSeleccionado = clientes.find(c => c.idCliente === parseInt(formulario.idCliente));
 
         if (membresiaSeleccionada && clienteSeleccionado) {
-          fetch('http://localhost:8080/api/pagos', {
+          fetch('https://graftgym-api.onrender.com/api/pagos', {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export default function Suscripciones() {
 
   const eliminarSuscripcion = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar esta suscripción?")) {
-      fetch(`http://localhost:8080/api/suscripciones/${id}`, {
+      fetch(`https://graftgym-api.onrender.com/api/suscripciones/${id}`, {
         method: 'DELETE',
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       })

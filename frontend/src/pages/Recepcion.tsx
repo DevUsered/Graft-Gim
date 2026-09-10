@@ -43,7 +43,7 @@ export default function Recepcion() {
     setHistorial([]);
 
     try {
-      const resClientes = await fetch('http://localhost:8080/api/clientes', {
+      const resClientes = await fetch('https://graftgym-api.onrender.com/api/clientes', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export default function Recepcion() {
         return;
       }
 
-      const resSuscripciones = await fetch('http://localhost:8080/api/suscripciones', {
+      const resSuscripciones = await fetch('https://graftgym-api.onrender.com/api/suscripciones', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ export default function Recepcion() {
         sub => sub.cliente.idCliente === clienteEncontrado.idCliente && sub.estado === 'VIGENTE'
       );
 
-      const resAsistencias = await fetch('http://localhost:8080/api/asistencias', {
+      const resAsistencias = await fetch('https://graftgym-api.onrender.com/api/asistencias', {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ export default function Recepcion() {
 
     try {
       // 1. Buscamos al Cliente Casual
-      const resClientes = await fetch('http://localhost:8080/api/clientes', {
+      const resClientes = await fetch('https://graftgym-api.onrender.com/api/clientes', {
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
       // Le decimos a TypeScript que esto es un arreglo de clientes
@@ -113,7 +113,7 @@ export default function Recepcion() {
       }
 
       // 2. Buscamos el plan llamado "Pase Diario"
-      const resPlanes = await fetch('http://localhost:8080/api/membresias', {
+      const resPlanes = await fetch('https://graftgym-api.onrender.com/api/membresias', {
         headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
       
@@ -131,7 +131,7 @@ export default function Recepcion() {
       }
 
       // 3. Registramos la Asistencia
-      await fetch('http://localhost:8080/api/asistencias', {
+      await fetch('https://graftgym-api.onrender.com/api/asistencias', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export default function Recepcion() {
       });
 
       // 4. Mandamos a caja el precio exacto del plan
-      await fetch('http://localhost:8080/api/pagos', {
+      await fetch('https://graftgym-api.onrender.com/api/pagos', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -218,7 +218,7 @@ export default function Recepcion() {
   const registrarAsistencia = async () => {
     if(!resultado || !resultado.cliente) return;
     try {
-      const res = await fetch('http://localhost:8080/api/asistencias', {
+      const res = await fetch('https://graftgym-api.onrender.com/api/asistencias', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

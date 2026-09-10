@@ -34,10 +34,10 @@ export default function Dashboard() {
         const headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
         
         const [resPagos, resSuscripciones, resAsistencias, resClientes] = await Promise.all([
-          fetch('http://localhost:8080/api/pagos', { headers }),
-          fetch('http://localhost:8080/api/suscripciones', { headers }),
-          fetch('http://localhost:8080/api/asistencias', { headers }),
-          fetch('http://localhost:8080/api/clientes', { headers })
+          fetch('https://graftgym-api.onrender.com/api/pagos', { headers }),
+          fetch('https://graftgym-api.onrender.com/api/suscripciones', { headers }),
+          fetch('https://graftgym-api.onrender.com/api/asistencias', { headers }),
+          fetch('https://graftgym-api.onrender.com/api/clientes', { headers })
         ]);
 
         // 2. Le indicamos a TypeScript qué tipo de arreglo es cada respuesta

@@ -25,7 +25,7 @@ export default function Clientes() {
   });
 
   const cargarClientes = () => {
-    fetch('http://localhost:8080/api/clientes',{
+    fetch('https://graftgym-api.onrender.com/api/clientes',{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }
@@ -65,8 +65,8 @@ export default function Clientes() {
     e.preventDefault();
 
     const url = clienteEditando 
-      ? `http://localhost:8080/api/clientes/${clienteEditando}`
-      : 'http://localhost:8080/api/clientes';
+      ? `https://graftgym-api.onrender.com/api/clientes/${clienteEditando}`
+      : 'https://graftgym-api.onrender.com/api/clientes';
       
     const metodo = clienteEditando ? 'PUT' : 'POST';
 
@@ -94,7 +94,7 @@ export default function Clientes() {
   // NUEVO: Función para eliminar
   const eliminarCliente = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.")) {
-      fetch(`http://localhost:8080/api/clientes/${id}`, 
+      fetch(`https://graftgym-api.onrender.com/api/clientes/${id}`, 
         {
         method: 'DELETE',
         headers: {
