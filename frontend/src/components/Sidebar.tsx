@@ -21,9 +21,16 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
       {/* CABECERA Y LOGO DINÁMICO */}
       <div className="p-6 flex items-center justify-between border-b border-gray-50 h-24">
         {isOpen && (
-          <h1 className="text-2xl font-black text-[#1a1446] tracking-tight animate-fade-in truncate" title={nombreGym}>
-            {nombreGym}
-          </h1>
+          <div className="flex items-center gap-3 animate-fade-in overflow-hidden">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4a24ff] to-[#8b5cf6] flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(74,36,255,0.3)]">
+              <span className="text-white text-xl font-black drop-shadow-md">
+                {nombreGym.charAt(0).toUpperCase()}
+              </span>
+            </div>
+            <h1
+            className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-[#1a1446] via-[#4a24f6] to-[#8b5cf6] tracking-tight truncate"
+            title="nombreGym">{nombreGym}</h1>
+          </div>
         )}
         <button 
           onClick={() => setIsOpen(!isOpen)}
