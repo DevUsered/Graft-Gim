@@ -1,17 +1,12 @@
-# Etapa 1: Construcción
-FROM maven:latest AS build
+# Etapa 1: Construcción (Usamos Maven con la versión oficial de Eclipse Temurin Java 21)
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
-# Copiamos todo el backend
 COPY . .
-# Compilamos el proyecto omitiendo los tests
 RUN mvn clean package -DskipTests
 
-# Etapa 2: Ejecución
-FROM openjdk:latest
+# Etapa 2: Ejecución (Usamos la versión oficial y estable de Java 21)
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-# ¡OJO AQUÍ! --from debe ir estrictamente en minúsculas
 COPY --from=build /app/target/*.jar app.jar
-# Exponemos el puerto
 EXPOSE 8080
-# Comando para arrancar Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
