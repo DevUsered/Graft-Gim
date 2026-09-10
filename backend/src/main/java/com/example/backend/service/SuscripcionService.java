@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SuscripcionService {
@@ -62,5 +63,8 @@ public class SuscripcionService {
     }
     public void eliminar(Integer id){
         suscripcionRepository.deleteById(id);
+    }
+    public Optional<Suscripcion> obtenerActivaPorCliente(Integer idCliente){
+        return suscripcionRepository.findFirstByCliente_IdClienteAndEstadoOrderByFechaFinDesc(idCliente, "VIGENTE");
     }
 }

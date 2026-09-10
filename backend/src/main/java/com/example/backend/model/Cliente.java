@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "cliente")
+@Table(name = "cliente", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"carnet_identidad", "id_gimnasio"})
+})
 public class Cliente extends TenantEntity{
 
     @Id
@@ -12,7 +14,7 @@ public class Cliente extends TenantEntity{
     @Column(name = "id_cliente")
     private Integer idCliente;
 
-    @Column(name = "carnet_identidad", unique = true, nullable = false, length = 20)
+    @Column(name = "carnet_identidad", nullable = false, length = 20)
     private String carnetIdentidad;
 
     @Column(name = "nombre_completo", nullable = false, length = 150)
