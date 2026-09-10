@@ -25,7 +25,7 @@ export default function Clientes() {
   });
 
   const cargarClientes = () => {
-    fetch(`${import.meta.env.VITE_API_URL}}/api/clientes`,{
+    fetch(`${import.meta.env.VITE_API_URL}/api/clientes`,{
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
       }
@@ -65,8 +65,8 @@ export default function Clientes() {
     e.preventDefault();
 
     const url = clienteEditando 
-      ? `${import.meta.env.VITE_API_URL}}/api/clientes/${clienteEditando}`
-      : `${import.meta.env.VITE_API_URL}}/api/clientes`;
+      ? `${import.meta.env.VITE_API_URL}/api/clientes/${clienteEditando}`
+      : `${import.meta.env.VITE_API_URL}/api/clientes`;
       
     const metodo = clienteEditando ? 'PUT' : 'POST';
 
@@ -94,7 +94,7 @@ export default function Clientes() {
   // NUEVO: Función para eliminar
   const eliminarCliente = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.")) {
-      fetch(`${import.meta.env.VITE_API_URL}}/api/clientes/${id}`, 
+      fetch(`${import.meta.env.VITE_API_URL}/api/clientes/${id}`, 
         {
         method: 'DELETE',
         headers: {
