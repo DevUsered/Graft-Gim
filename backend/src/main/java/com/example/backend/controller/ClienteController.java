@@ -9,7 +9,7 @@ import java.util.List;
 
 // @CrossOrigin permite que nuestro Frontend (que corre en el puerto 5173)
 // pueda conectarse con el Backend (que corre en el puerto 8080) sin errores de seguridad.
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
