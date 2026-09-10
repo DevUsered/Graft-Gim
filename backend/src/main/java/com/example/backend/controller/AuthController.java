@@ -1,6 +1,8 @@
 package com.example.backend.controller;
 
+import com.example.backend.model.Gimnasio;
 import com.example.backend.model.Usuario;
+import com.example.backend.repository.GimnasioRepository;
 import com.example.backend.repository.UsuarioRepository;
 import com.example.backend.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class AuthController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private GimnasioRepository gimnasioRepository;
+
     // Esta clase interna sirve para recibir los datos de React
     public static class AuthRequest {
         public String username;
@@ -51,7 +56,25 @@ public class AuthController {
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username);
         final String jwt = jwtUtil.generateToken(userDetails, usuarioDb.getIdGimnasio());
 
+        String estadoGym = "ACTIVO";
+        String fechaVencimiento = "";
+        String nombreGym = "Gimnasio";
+
+        if(usuarioDb.getIdGimnasio() != null){
+            Gimnasio gym = gimnasioRepository.findById(usuarioDb.getIdGimnasio()).orElse(null);
+            if(gym != null){
+                estadoGym = gym.getEstado();
+                fechaVencimiento = gym.getFechaVencimiento() != null ? gym.getFechaVencimiento().toString() : "";
+                nombreGym = gym.getNombre();
+            }
+        }
+
         // Se lo devolvemos a React en formato JSON
-        return Map.of("token", jwt);
+        return Map.of("token", jwt,
+                      "rol",usuarioDb.getRol(),
+                      "estado", estadoGym,
+                      "vencimiento", fechaVencimiento,
+                      "nombreGym", nombreGym
+                );
     }
 }

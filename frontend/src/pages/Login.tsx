@@ -24,7 +24,16 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
       
       // Guardamos la llave mágica en la memoria del navegador
       localStorage.setItem('token', datos.token); 
+      
+      // Flexibilidad por si el backend usa 'role', 'roles' u otro formato
+      const rolAsignado = datos.rol || datos.role || (datos.roles ? datos.roles[0] : '') || '';
+      localStorage.setItem('rol', typeof rolAsignado === 'string' ? rolAsignado : JSON.stringify(rolAsignado));
+      
       localStorage.setItem('username', username);
+      localStorage.setItem('estadoGym', datos.estado || 'ACTIVO');
+      localStorage.setItem('vencimientoGym', datos.vencimiento || '');
+      localStorage.setItem('nombreGym', datos.nombreGym || 'Panel de Control');
+
       onLogin(); // Le avisamos a la app que ya podemos entrar
       
     } catch {
@@ -39,6 +48,14 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
       <div className="bg-white p-10 rounded-3xl shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] w-full max-w-md border border-gray-50">
         
         <div className="text-center mb-10">
+          {/*LOGO DE Field*/}
+          <div className="flex justify-center mb-4">
+            <img 
+              src="logo_personal.png"
+              alt="Graft Field Logo"
+              className="h-16 object-contain drop-shadow-sm"
+            />
+          </div>
           <h1 className="text-4xl font-black text-[#1a1446] tracking-tight mb-2">
             Graft<span className="text-[#4a24ff]">Gym</span>
           </h1>
@@ -54,7 +71,7 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
               onChange={(e) => setUsername(e.target.value)} 
               required
               className="w-full bg-gray-50 border border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-[#4a24ff] focus:ring-4 focus:ring-[#f4edff] outline-none transition-all font-medium text-[#1a1446]"
-              placeholder="Ej: edgar"
+              placeholder="Ej: juanito123"
             />
           </div>
 
@@ -80,6 +97,12 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
             {cargando ? 'Iniciando sesión...' : 'Ingresar'}
           </button>
         </form>
+      </div>
+      <div className="absolute bottom-4 w-full text-center px-4 z-0">
+        <p className="text-xs text-gray-400 font-bold tracking-wide">
+          © {new Date().getFullYear()} Graft Field.
+          <span className="block sm:inline sm:ml-1">Software desarrollado por Edgar Perez. Todos los derechos reservados.</span>
+        </p>
       </div>
     </div>
   );

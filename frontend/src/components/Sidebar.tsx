@@ -1,12 +1,12 @@
 import { NavLink } from 'react-router-dom';
 import { useState } from 'react';
 
-// Recibimos la función de cerrar sesión desde App.tsx
 export default function Sidebar({ onLogout }: { onLogout: () => void }) {
   const [isOpen, setIsOpen] = useState(true);
 
-  // Recuperamos el nombre del usuario (Ej: 'edgar')
+  // Recuperamos el nombre del usuario y el del gimnasio
   const nombreUsuario = localStorage.getItem('username') || 'Administrador';
+  const nombreGym = localStorage.getItem('nombreGym') || 'Mi Gimnasio'; // <-- ¡NUEVO!
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     `flex items-center p-4 my-2 transition-all rounded-2xl font-bold ${
@@ -16,18 +16,18 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
     } ${!isOpen ? 'justify-center' : ''}`;
 
   return (
-    <div className={`bg-white h-screen shadow-[10px_0_40px_rgba(0,0,0,0.03)] border-r border-gray-100 flex flex-col transition-all duration-300 ${isOpen ? 'w-72' : 'w-24'}`}>
+    <div className={`bg-white h-screen shadow-[10px_0_40px_rgba(0,0,0,0.03)] border-r border-gray-100 flex flex-col transition-all duration-300 ${isOpen ? 'w-72' : 'w-24'} shrink-0`}>
       
-      {/* CABECERA Y LOGO */}
-      <div className="p-6 flex items-center justify-between border-b border-gray-50">
+      {/* CABECERA Y LOGO DINÁMICO */}
+      <div className="p-6 flex items-center justify-between border-b border-gray-50 h-24">
         {isOpen && (
-          <h1 className="text-3xl font-black text-[#1a1446] tracking-tight animate-fade-in">
-            Graft<span className="text-[#4a24ff]">Gym</span>
+          <h1 className="text-2xl font-black text-[#1a1446] tracking-tight animate-fade-in truncate" title={nombreGym}>
+            {nombreGym}
           </h1>
         )}
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="text-gray-400 hover:text-[#4a24ff] bg-gray-50 hover:bg-[#f4edff] p-2 rounded-xl transition-colors"
+          className="text-gray-400 hover:text-[#4a24ff] bg-gray-50 hover:bg-[#f4edff] p-2 rounded-xl transition-colors min-w-[40px]"
         >
           {isOpen ? '◀' : '▶'}
         </button>
@@ -36,12 +36,6 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
       {/* ENLACES DEL MENÚ */}
       <nav className="flex-1 p-4 overflow-y-auto">
         <ul className="space-y-1">
-          <li>
-            <NavLink to="/superadmin" className={linkClasses}>
-              <span className="text-2xl">👑</span>
-              {isOpen && <span className="ml-4 tracking-wide text-amber-500">SaS Admin</span>}
-            </NavLink>
-          </li>
           <li>
             <NavLink to="/" className={linkClasses}>
               <span className="text-2xl">📊</span>
@@ -81,11 +75,11 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
         </ul>
       </nav>
 
-      {/* SECCIÓN DEL USUARIO Y LOGOUT (EN LA PARTE INFERIOR) */}
+      {/* SECCIÓN DEL USUARIO Y LOGOUT */}
       <div className="p-4 border-t border-gray-50 bg-[#fafafa]">
         <div className={`flex items-center ${!isOpen ? 'justify-center' : 'justify-between'} bg-white p-3 rounded-2xl border border-gray-100 shadow-sm`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#f4edff] text-[#4a24ff] flex items-center justify-center font-bold text-lg">
+            <div className="w-10 h-10 rounded-full bg-[#f4edff] text-[#4a24ff] flex items-center justify-center font-bold text-lg shrink-0">
               {nombreUsuario.charAt(0).toUpperCase()}
             </div>
             {isOpen && (
@@ -99,7 +93,7 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
           {isOpen && (
             <button 
               onClick={onLogout}
-              className="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm"
+              className="w-10 h-10 shrink-0 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm"
               title="Cerrar Sesión"
             >
               🚪
@@ -107,7 +101,6 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
           )}
         </div>
         
-        {/* Botón de logout cuando el menú está cerrado */}
         {!isOpen && (
           <button 
             onClick={onLogout}
@@ -117,8 +110,23 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
             🚪
           </button>
         )}
-      </div>
 
+        {isOpen && (
+          <div className="text-center mt-6 flex flex-col items-center animate-fade-in">
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
+              Powered by
+            </p>
+            <img 
+              src="/logo_personal.png" 
+              alt="Graft Field" 
+              className="h-6 w-auto object-contain mb-1 opacity-80" 
+            />
+            <p className="text-xs font-bold text-[#1a1446]">
+              Graft Field Systems
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

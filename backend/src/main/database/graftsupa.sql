@@ -79,3 +79,16 @@ ALTER TABLE pago ADD COLUMN id_gimnasio INTEGER DEFAULT 1 REFERENCES gimnasios(i
 
 ALTER TABLE gimnacios RENAME TO gimnasios;
 ALTER TABLE gimnasios RENAME COLUMN id_gimnacio TO id_gimnasio;
+
+ALTER TABLE gimnasios ADD COLUMN estado VARCHAR(20) DEFAULT 'ACTIVO';
+ALTER TABLE gimnasios ADD COLUMN fecha_vencimiento DATE;
+
+UPDATE usuarios SET id_gimnasio = NULL WHERE rol = 'SUPERADMIN';
+
+UPDATE usuarios SET rol = 'SUPERADMIN' WHERE username = 'edgar';
+UPDATE usuarios SET id_gimnasio = NULL WHERE username = 'edgar';
+
+SELECT username, rol, id_gimnasio FROM usuarios;
+
+UPDATE gimnasios SET fecha_vencimiento = '2026-08-01' WHERE nombre = 'Titan Fitness';
+UPDATE gimnasios SET estado = 'ACTIVO' WHERE nombre = 'Titan Fitness';
