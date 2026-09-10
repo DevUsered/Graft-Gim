@@ -12,71 +12,84 @@ export default function Finanzas() {
   const [pagos, setPagos] = useState<Pago[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarToast, setMostrarToast] = useState(false);
+
+  const [refresh, setRefresh] = useState(0);
   
   const [formulario, setFormulario] = useState({
     monto: '',
     concepto: '',
     metodoPago: 'EFECTIVO'
   });
-
-  const cargarPagos = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    })
-      .then(res => res.json())
-      .then(datos => {
-        // Ordenamos los pagos para que los más recientes salgan arriba
-        const ordenados = datos.sort((a: Pago, b: Pago) => 
-          new Date(b.fechaHora).getTime() - new Date(a.fechaHora).getTime()
-        );
-        setPagos(ordenados);
-      })
-      .catch(error => console.error("Error al cargar finanzas:", error));
-  };
-
   useEffect(() => {
-    cargarPagos();
-  }, []);
+    const fetchPagos = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        });
+        
+        if (res.ok) {
+          const datos = await res.json();
+          const ordenados = datos.sort((a: Pago, b: Pago) => 
+            new Date(b.fechaHora).getTime() - new Date(a.fechaHora).getTime()
+          );
+          setPagos(ordenados);
+        }
+      } catch (error) {
+        console.error("Error al cargar finanzas:", error);
+      }
+    };
+
+    fetchPagos();
+  }, [refresh]);
+  // <-- Ahora React sabe que es seguro llamarla
 
   const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
   };
 
-  const guardarPago = (e: React.FormEvent) => {
+  const guardarPago = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-      },
-      body: JSON.stringify({
-        monto: parseFloat(formulario.monto),
-        concepto: formulario.concepto,
-        metodoPago: formulario.metodoPago
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+          monto: parseFloat(formulario.monto),
+          concepto: formulario.concepto,
+          metodoPago: formulario.metodoPago
+        })
+      });
+
+      if (!res.ok) {
+        const errorTexto = await res.text();
+        throw new Error(errorTexto || "Error al registrar en caja.");
+      }
+
       setMostrarModal(false);
       setFormulario({ monto: '', concepto: '', metodoPago: 'EFECTIVO' });
-      cargarPagos();
+      setRefresh(prev => prev + 1);
+      
       setMostrarToast(true);
       setTimeout(() => setMostrarToast(false), 3000);
-    })
-    .catch(error => console.error("Error al registrar pago:", error));
+      
+    } catch (error) { 
+      const mensaje = error instanceof Error ? error.message : "Ocurrió un problema inesperado";
+      alert("Error: " + mensaje);
+      console.error("Error al registrar pago:", error);
+    }
   };
 
-  // Cálculos matemáticos para el Dashboard financiero
-  const hoyStr = new Date().toISOString().split('T')[0];
+  const hoyStr = new Date().toLocaleDateString('en-CA'); 
   
   const totalHistorico = pagos.reduce((suma, p) => suma + p.monto, 0);
   const totalHoy = pagos
     .filter(p => p.fechaHora.startsWith(hoyStr))
     .reduce((suma, p) => suma + p.monto, 0);
 
-  // Función para darle formato bonito a la fecha (Ej: "4 sep 2026, 14:30")
   const formatearFecha = (fechaOriginal: string) => {
     const fecha = new Date(fechaOriginal);
     return new Intl.DateTimeFormat('es-BO', { 

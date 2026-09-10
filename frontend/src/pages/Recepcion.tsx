@@ -43,46 +43,32 @@ export default function Recepcion() {
     setHistorial([]);
 
     try {
-      const resClientes = await fetch(`${import.meta.env.VITE_API_URL}/api/clientes`, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
-        }
+      // 1. Buscamos SOLO a este cliente por su Carnet
+      const resCliente = await fetch(`${import.meta.env.VITE_API_URL}/api/clientes/buscar/${ciBuscado.trim()}`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
-      const clientes: Cliente[] = await resClientes.json();
-      const clienteEncontrado = clientes.find(c => c.carnetIdentidad === ciBuscado.trim());
 
-      if (!clienteEncontrado) {
+      if (resCliente.status === 404) {
         setMensaje({ texto: 'No existe ningún cliente con ese Carnet de Identidad.', tipo: 'error' });
         setCargando(false);
         return;
       }
+      const clienteEncontrado = await resCliente.json();
 
-      const resSuscripciones = await fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones`, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
-        }
+      // 2. Buscamos SOLO la suscripción activa de ESTE cliente
+      const resSuscripcion = await fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones/cliente/${clienteEncontrado.idCliente}/activa`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
-      const suscripciones: Suscripcion[] = await resSuscripciones.json();
-      const suscripcionActiva = suscripciones.find(
-        sub => sub.cliente.idCliente === clienteEncontrado.idCliente && sub.estado === 'VIGENTE'
-      );
+      // Si el backend responde 200 OK, sacamos el JSON. Si responde 404, lo dejamos en null
+      const suscripcionActiva = resSuscripcion.ok ? await resSuscripcion.json() : null;
 
-      const resAsistencias = await fetch(`${import.meta.env.VITE_API_URL}/api/asistencias`, {
-        method: 'GET',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
-        }
+      // 3. Buscamos SOLO el historial de asistencias de ESTE cliente
+      const resAsistencias = await fetch(`${import.meta.env.VITE_API_URL}/api/asistencias/cliente/${clienteEncontrado.idCliente}`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       });
-      const asistenciasTotales: Asistencia[] = await resAsistencias.json();
-      
-      // Guardamos TODAS las asistencias de este cliente para armar el calendario
-      const asistenciasDelCliente = asistenciasTotales.filter(a => a.cliente.idCliente === clienteEncontrado.idCliente);
+      const asistenciasDelCliente = resAsistencias.ok ? await resAsistencias.json() : [];
 
+      // 4. Mostramos los resultados mágicamente en pantalla
       setHistorial(asistenciasDelCliente);
       setResultado({ cliente: clienteEncontrado, suscripcion: suscripcionActiva });
 

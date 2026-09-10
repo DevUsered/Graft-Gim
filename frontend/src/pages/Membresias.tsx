@@ -83,7 +83,12 @@ export default function Membresias() {
         duracionDias: parseInt(formulario.duracionDias)
       })
     })
-    .then(respuesta => respuesta.json())
+    .then(async (respuesta) =>{
+      if(!respuesta.ok){
+        const errorTexto = await respuesta.text();
+        throw new Error(errorTexto || "Ocurrió un error al guardar la membresia.")
+      }
+    })
     .then(() => {
       setMostrarModal(false);
       setFormulario({ nombre: '', precio: '', duracionDias: '', descripcion: '' });

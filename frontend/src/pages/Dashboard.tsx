@@ -1,26 +1,15 @@
 import { useState, useEffect } from 'react';
 
-// 1. Definimos las interfaces para que TypeScript sepa qué datos estamos manejando
-interface Pago {
-  monto: number;
-  fechaHora: string;
-}
-
-interface Suscripcion {
-  estado: string;
-  fechaFin: string;
-}
-
-interface Asistencia {
-  fechaHora: string;
-}
-
-interface Cliente {
-  idCliente: number;
+// 1. Una sola interfaz que refleja exactamente lo que manda Spring Boot
+interface Metricas {
+  ingresosHoy: number;
+  clientesActivos: number;
+  asistenciasHoy: number;
+  totalClientes: number;
 }
 
 export default function Dashboard() {
-  const [metricas, setMetricas] = useState({
+  const [metricas, setMetricas] = useState<Metricas>({
     ingresosHoy: 0,
     clientesActivos: 0,
     asistenciasHoy: 0,
@@ -31,44 +20,17 @@ export default function Dashboard() {
   useEffect(() => {
     const cargarDashboard = async () => {
       try {
-        const headers = { 'Authorization': 'Bearer ' + localStorage.getItem('token') };
-        
-        const [resPagos, resSuscripciones, resAsistencias, resClientes] = await Promise.all([
-          fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL}/api/asistencias`, { headers }),
-          fetch(`${import.meta.env.VITE_API_URL}/api/clientes`, { headers })
-        ]);
-
-        // 2. Le indicamos a TypeScript qué tipo de arreglo es cada respuesta
-        const pagos: Pago[] = await resPagos.json();
-        const suscripciones: Suscripcion[] = await resSuscripciones.json();
-        const asistencias: Asistencia[] = await resAsistencias.json();
-        const clientes: Cliente[] = await resClientes.json();
-
-        // 3. Ya no necesitamos poner 'any', TypeScript infiere los tipos automáticamente
-        const hoyStr = new Date().toISOString().split('T')[0];
-        
-        const ingresosHoy = pagos
-          .filter(p => p.fechaHora.startsWith(hoyStr))
-          .reduce((suma, p) => suma + p.monto, 0);
-
-        const clientesActivos = suscripciones.filter(s => {
-          if (s.estado !== 'VIGENTE') return false;
-          const hoy = new Date();
-          hoy.setHours(0, 0, 0, 0);
-          const fin = new Date(s.fechaFin + 'T00:00:00');
-          return fin >= hoy;
-        }).length;
-
-        const asistenciasHoy = asistencias.filter(a => a.fechaHora.startsWith(hoyStr)).length;
-
-        setMetricas({
-          ingresosHoy,
-          clientesActivos,
-          asistenciasHoy,
-          totalClientes: clientes.length
+        // 2. LA MAGIA: Una sola petición ultra-rápida al nuevo controlador
+        const respuesta = await fetch(`${import.meta.env.VITE_API_URL}/api/dashboard/metricas`, {
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
         });
+
+        if (respuesta.ok) {
+          const datos = await respuesta.json();
+          setMetricas(datos); // Asignamos directamente los totales
+        } else {
+          console.error("El backend no pudo calcular las métricas.");
+        }
 
       } catch (error) {
         console.error("Error al cargar el Dashboard:", error);
@@ -83,7 +45,14 @@ export default function Dashboard() {
   const adminName = localStorage.getItem('username') || 'Administrador';
 
   if (cargando) {
-    return <div className="p-10 text-center font-bold text-gray-400">Cargando métricas en tiempo real...</div>;
+    return (
+      <div className="flex h-full items-center justify-center p-10">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#f4edff] border-t-[#4a24ff] rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="font-bold text-gray-400">Cargando métricas en tiempo real...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -95,7 +64,7 @@ export default function Dashboard() {
         <p className="text-gray-500 mt-2 font-medium text-lg">Este es el resumen de tu gimnasio el día de hoy.</p>
       </header>
 
-      {/* --- TARJETAS DE MÉTRICAS --- */}
+      {/* --- TARJETAS DE MÉTRICAS (Mismo diseño premium) --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
         
         {/* Tarjeta 1: Ingresos */}
