@@ -8,11 +8,23 @@ interface Pago {
   fechaHora: string;
 }
 
+// NUEVA INTERFAZ: Refleja exactamente lo que manda el "Super Endpoint" de Java
+interface ResumenFinanzas {
+  listaPagos: Pago[];
+  totalHistorico: number;
+  totalHoy: number;
+}
+
 export default function Finanzas() {
-  const [pagos, setPagos] = useState<Pago[]>([]);
+  // Ahora usamos un solo estado para todo el paquete financiero
+  const [resumen, setResumen] = useState<ResumenFinanzas>({
+    listaPagos: [],
+    totalHistorico: 0,
+    totalHoy: 0
+  });
+  
   const [mostrarModal, setMostrarModal] = useState(false);
   const [mostrarToast, setMostrarToast] = useState(false);
-
   const [refresh, setRefresh] = useState(0);
   
   const [formulario, setFormulario] = useState({
@@ -20,28 +32,26 @@ export default function Finanzas() {
     concepto: '',
     metodoPago: 'EFECTIVO'
   });
+
   useEffect(() => {
-    const fetchPagos = async () => {
+    const fetchFinanzas = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+        // Apuntamos al nuevo endpoint: /api/pagos/resumen
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos/resumen`, {
           headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
         });
         
         if (res.ok) {
           const datos = await res.json();
-          const ordenados = datos.sort((a: Pago, b: Pago) => 
-            new Date(b.fechaHora).getTime() - new Date(a.fechaHora).getTime()
-          );
-          setPagos(ordenados);
+          setResumen(datos); // Asignamos todo el bloque de una sola vez
         }
       } catch (error) {
         console.error("Error al cargar finanzas:", error);
       }
     };
 
-    fetchPagos();
+    fetchFinanzas();
   }, [refresh]);
-  // <-- Ahora React sabe que es seguro llamarla
 
   const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
@@ -83,13 +93,6 @@ export default function Finanzas() {
     }
   };
 
-  const hoyStr = new Date().toLocaleDateString('en-CA'); 
-  
-  const totalHistorico = pagos.reduce((suma, p) => suma + p.monto, 0);
-  const totalHoy = pagos
-    .filter(p => p.fechaHora.startsWith(hoyStr))
-    .reduce((suma, p) => suma + p.monto, 0);
-
   const formatearFecha = (fechaOriginal: string) => {
     const fecha = new Date(fechaOriginal);
     return new Intl.DateTimeFormat('es-BO', { 
@@ -112,17 +115,17 @@ export default function Finanzas() {
         </button>
       </header>
 
-      {/* --- TARJETAS DE RESUMEN (ESTILO FINTECH) --- */}
+      {/* --- TARJETAS DE RESUMEN --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div className="bg-gradient-to-br from-[#1a1446] to-[#2d226e] rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
           <p className="text-[#a594ff] font-bold uppercase tracking-wider text-sm mb-2">Ingresos de Hoy</p>
-          <h3 className="text-5xl font-black">Bs. {totalHoy.toFixed(2)}</h3>
+          <h3 className="text-5xl font-black">Bs. {resumen.totalHoy.toFixed(2)}</h3>
         </div>
 
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col justify-center">
           <p className="text-gray-400 font-bold uppercase tracking-wider text-sm mb-2">Total Histórico</p>
-          <h3 className="text-4xl font-black text-[#1a1446]">Bs. {totalHistorico.toFixed(2)}</h3>
+          <h3 className="text-4xl font-black text-[#1a1446]">Bs. {resumen.totalHistorico.toFixed(2)}</h3>
         </div>
       </div>
 
@@ -194,14 +197,14 @@ export default function Finanzas() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {pagos.length === 0 ? (
+            {resumen.listaPagos.length === 0 ? (
               <tr>
                 <td colSpan={4} className="p-12 text-center text-gray-400 font-medium">
                   Aún no hay pagos registrados en la caja.
                 </td>
               </tr>
             ) : (
-              pagos.map((pago) => (
+              resumen.listaPagos.map((pago) => (
                 <tr key={pago.idPago} className="hover:bg-[#fafafa] transition-colors">
                   <td className="p-5 text-gray-500 font-medium text-sm">
                     {formatearFecha(pago.fechaHora)}

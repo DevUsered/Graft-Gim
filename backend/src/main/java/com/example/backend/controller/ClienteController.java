@@ -3,9 +3,11 @@ package com.example.backend.controller;
 import com.example.backend.model.Cliente;
 import com.example.backend.service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 // @CrossOrigin permite que nuestro Frontend (que corre en el puerto 5173)
 // pueda conectarse con el Backend (que corre en el puerto 8080) sin errores de seguridad.
@@ -36,5 +38,16 @@ public class ClienteController {
     @DeleteMapping("/{id}")
     public void eliminarCliente(@PathVariable Integer id){
         clienteService.eliminarCliente(id);
+    }
+
+    @GetMapping("/buscar/{carnet}")
+    public ResponseEntity<?> buscarPorCarnet(@PathVariable String carnet) {
+        Optional<Cliente> clienteOpt = clienteService.buscarPorCarnet(carnet);
+
+        if (clienteOpt.isPresent()) {
+            return ResponseEntity.ok(clienteOpt.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

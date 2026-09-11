@@ -148,12 +148,13 @@ export default function Suscripciones() {
       if (!suscripcionEditando) {
         const membresiaSeleccionada = membresias.find(m => m.idMembresia === parseInt(formulario.idMembresia));
         if (membresiaSeleccionada) {
+          const nombreDelCliente = esNuevoCliente ? nuevoClienteForm.nombreCompleto : clienteSeleccionado?.nombreCompleto;
           await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
             body: JSON.stringify({
               monto: membresiaSeleccionada.precio,
-              concepto: `Plan: ${membresiaSeleccionada.nombre}`,
+              concepto: `Plan: ${membresiaSeleccionada.nombre} - ${nombreDelCliente}`,
               metodoPago: 'EFECTIVO' 
             })
           });

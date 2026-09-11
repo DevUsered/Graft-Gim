@@ -264,9 +264,13 @@ export default function Recepcion() {
         <div className="flex justify-center">
           <button 
             onClick={registrarPaseExpress} disabled={cargando}
-            className="flex items-center gap-2 bg-white text-gray-500 hover:text-[#4a24ff] font-bold px-6 py-3 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 disabled:opacity-50"
+            className="flex items-center gap-2 bg-white text-gray-500 hover:text-[#4a24ff] font-bold px-6 py-3 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="text-xl">⚡</span> Registrar Pase Diario (Sin Registro)
+            {cargando ? (
+              '⏳ Registrando Pase...'
+            ) : (
+              <><span className="text-xl">⚡</span> Registrar Pase Diario (Sin Registro)</>
+            )}
           </button>
         </div>
       </div>
