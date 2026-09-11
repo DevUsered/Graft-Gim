@@ -8,15 +8,28 @@ interface Membresia {
   descripcion: string;
 }
 
+// NUEVO: Interfaz para leer las suscripciones y sacar los nombres
+interface SuscripcionAPI {
+  idSuscripcion: number;
+  estado: string;
+  cliente: { nombreCompleto: string };
+  membresia: { idMembresia: number };
+}
+
 export default function Membresias() {
   const [membresias, setMembresias] = useState<Membresia[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   
-  // NUEVO: Estados para manejar la edición y el Toast dinámico
   const [membresiaEditando, setMembresiaEditando] = useState<number | null>(null);
   const [mostrarToast, setMostrarToast] = useState(false);
   const [mensajeToast, setMensajeToast] = useState("");
   
+  // NUEVO: Estados para el Modal de Suscritos
+  const [mostrarModalSuscritos, setMostrarModalSuscritos] = useState(false);
+  const [nombresSuscritos, setNombresSuscritos] = useState<string[]>([]);
+  const [nombrePlanViendo, setNombrePlanViendo] = useState("");
+  const [cargandoSuscritos, setCargandoSuscritos] = useState(false);
+
   const [formulario, setFormulario] = useState({
     nombre: '',
     precio: '',
@@ -44,10 +57,9 @@ export default function Membresias() {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
   };
 
-  // NUEVO: Funciones para abrir el modal en diferentes modos
   const abrirModalCrear = () => {
     setFormulario({ nombre: '', precio: '', duracionDias: '', descripcion: '' });
-    setMembresiaEditando(null); // Modo Crear
+    setMembresiaEditando(null); 
     setMostrarModal(true);
   };
 
@@ -58,11 +70,43 @@ export default function Membresias() {
       duracionDias: membresia.duracionDias.toString(),
       descripcion: membresia.descripcion || ''
     });
-    setMembresiaEditando(membresia.idMembresia); // Modo Editar
+    setMembresiaEditando(membresia.idMembresia); 
     setMostrarModal(true);
   };
 
-  // ACTUALIZADO: Maneja tanto POST (Crear) como PUT (Editar)
+  // NUEVO: Función que busca quién está inscrito en el plan
+  const verSuscritos = async (idMembresia: number, nombrePlan: string) => {
+    setNombrePlanViendo(nombrePlan);
+    setNombresSuscritos([]);
+    setCargandoSuscritos(true);
+    setMostrarModalSuscritos(true);
+
+    try {
+      // Reutilizamos tu endpoint de suscripciones
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones`, {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+      });
+      
+      if (res.ok) {
+        const todasLasSuscripciones: SuscripcionAPI[] = await res.json();
+        
+        // Filtramos: Solo los que tienen este plan y están VIGENTES
+        const clientesEnEstePlan = todasLasSuscripciones
+          .filter(sub => sub.membresia?.idMembresia === idMembresia && sub.estado === 'VIGENTE')
+          .map(sub => sub.cliente?.nombreCompleto);
+          
+        // Quitamos duplicados (por si un cliente compró el mismo plan dos veces)
+        const nombresUnicos = Array.from(new Set(clientesEnEstePlan));
+        
+        setNombresSuscritos(nombresUnicos);
+      }
+    } catch (error) {
+      console.error("Error al obtener suscritos:", error);
+    } finally {
+      setCargandoSuscritos(false);
+    }
+  };
+
   const guardarMembresia = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -102,7 +146,6 @@ export default function Membresias() {
     .catch(error => console.error("Error al guardar:", error));
   };
 
-  // NUEVO: Función para eliminar
   const eliminarMembresia = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este plan? Si hay clientes suscritos a él, podría causar conflictos.")) {
       fetch(`${import.meta.env.VITE_API_URL}/api/membresias/${id}`, {
@@ -136,7 +179,7 @@ export default function Membresias() {
         </button>
       </header>
 
-      {/* --- INICIO DEL MODAL --- */}
+      {/* --- INICIO DEL MODAL CREAR/EDITAR --- */}
       {mostrarModal && (
         <div className="fixed inset-0 bg-[#1a1446]/40 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-gray-100">
@@ -201,6 +244,52 @@ export default function Membresias() {
         </div>
       )}
 
+      {/* --- NUEVO: MODAL PARA VER SUSCRITOS --- */}
+      {mostrarModalSuscritos && (
+        <div className="fixed inset-0 bg-[#1a1446]/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-gray-100 relative">
+            <button 
+              onClick={() => setMostrarModalSuscritos(false)}
+              className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 font-bold"
+            >
+              ✕
+            </button>
+            
+            <h3 className="text-2xl font-black text-[#1a1446] mb-1">Clientes Activos</h3>
+            <p className="text-[#4a24ff] font-bold text-sm uppercase tracking-wide mb-6">
+              {nombrePlanViendo}
+            </p>
+
+            <div className="max-h-60 overflow-y-auto pr-2">
+              {cargandoSuscritos ? (
+                <p className="text-center text-gray-400 font-medium py-4">Buscando clientes...</p>
+              ) : nombresSuscritos.length === 0 ? (
+                <div className="text-center py-6 bg-gray-50 rounded-xl border border-gray-100">
+                  <span className="text-3xl mb-2 block">👻</span>
+                  <p className="text-gray-500 font-medium text-sm">Nadie está suscrito a este plan actualmente.</p>
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {nombresSuscritos.map((nombre, i) => (
+                    <li key={i} className="bg-[#f4edff] text-[#1a1446] font-bold px-4 py-3 rounded-xl border border-[#4a24ff]/10 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-white text-[#4a24ff] flex items-center justify-center text-xs shadow-sm">
+                        {nombre.charAt(0)}
+                      </div>
+                      {nombre}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            
+            <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
+              <span className="text-gray-500 font-medium text-sm">Total inscritos:</span>
+              <span className="bg-[#1a1446] text-white px-3 py-1 rounded-lg font-black">{nombresSuscritos.length}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- TABLA DE MEMBRESÍAS --- */}
       <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-50 overflow-hidden relative z-0">
         <table className="w-full text-left border-collapse">
@@ -234,6 +323,14 @@ export default function Membresias() {
                     {membresia.descripcion || '—'}
                   </td>
                   <td className="p-5 text-right space-x-2">
+                    {/* NUEVO: Botón Ver Suscritos */}
+                    <button 
+                      onClick={() => verSuscritos(membresia.idMembresia, membresia.nombre)}
+                      className="w-10 h-10 inline-flex items-center justify-center rounded-xl text-[#00a870] hover:bg-[#e0f8f1] transition-colors"
+                      title="Ver Clientes Suscritos"
+                    >
+                      👥
+                    </button>
                     {/* Botón Editar */}
                     <button 
                       onClick={() => abrirModalEditar(membresia)}
