@@ -9,6 +9,7 @@ import Recepcion from './pages/Recepcion';
 import Finanzas from './pages/Finanzas';
 import Login from './pages/Login'; 
 import SuperAdmin from './pages/SuperAdmin'; 
+import Usuarios from './pages/Usuarios';
 
 // 1. EL TIEMPO LÍMITE VA AQUÍ AFUERA (Para que React no se queje)
 const TIEMPO_LIMITE = 30 * 60 * 1000; // 30 minutos
@@ -150,7 +151,16 @@ export default function App() {
               <Route path="/membresias" element={<Membresias />} />
               <Route path="/suscripciones" element={<Suscripciones />} />
               <Route path="/recepcion" element={<Recepcion />} />
-              <Route path="/finanzas" element={<Finanzas />} />
+              
+              {/* MAGIA DE SEGURIDAD: Estas rutas solo existen si eres ADMIN */}
+              {rol === 'ADMIN' && (
+                <>
+                  <Route path="/finanzas" element={<Finanzas />} />
+                  <Route path="/usuarios" element={<Usuarios />} />
+                </>
+              )}
+              
+              {/* Si alguien escribe una ruta que no existe o a la que no tiene permiso, lo manda al inicio */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>

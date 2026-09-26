@@ -94,3 +94,8 @@ UPDATE gimnasios SET fecha_vencimiento = '2026-08-01' WHERE nombre = 'Titan Fitn
 UPDATE gimnasios SET estado = 'ACTIVO' WHERE nombre = 'Titan Fitness';
 
 SELECT * FROM cliente;
+
+CREATE INDEX idx_pago_fecha ON pago(fecha_hora);
+
+DROP INDEX IF EXISTS idx_usuarios_username;
+ CREATE UNIQUE INDEX idx_usuarios_username ON usuarios(username);

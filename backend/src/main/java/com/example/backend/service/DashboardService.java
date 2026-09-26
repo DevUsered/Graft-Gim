@@ -24,20 +24,13 @@ public class DashboardService {
 
     public Map<String, Object> obtenerMetricasDiarias(){
         Map<String, Object> metricas = new HashMap<>();
-        LocalDate hoy = LocalDate.now();
 
         long totalClientes = clienteRepository.count();
 
-        double ingresosHoy = pagoRepository.findAll().stream()
-                .filter(p -> p.getFechaHora() != null && p.getFechaHora().toLocalDate().isEqual(hoy))
-                .mapToDouble(p -> p.getMonto().doubleValue())
-                .sum();
-        long clientesActivos = suscripcionRepository.findAll().stream()
-                .filter(s -> "VIGENTE".equals(s.getEstado()) && !s.getFechaFin().isBefore(hoy))
-                .count();
-        long asistenciasHoy = asistenciaRepository.findAll().stream()
-                .filter(a -> a.getFechaHora() != null && a.getFechaHora().toLocalDate().isEqual(hoy))
-                .count();
+        double ingresosHoy = pagoRepository.sumarTotalHoy();
+
+        long clientesActivos = suscripcionRepository.contarSuscripcionesActivas();
+        long asistenciasHoy = asistenciaRepository.contarAsistenciasHoy();
         metricas.put("totalClientes", totalClientes);
         metricas.put("ingresosHoy", ingresosHoy);
         metricas.put("clientesActivos", clientesActivos);

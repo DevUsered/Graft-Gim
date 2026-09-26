@@ -54,7 +54,7 @@ public class AuthController {
 
         // Si la contraseña era correcta, le fabricamos un token
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username);
-        final String jwt = jwtUtil.generateToken(userDetails, usuarioDb.getIdGimnasio());
+        final String jwt = jwtUtil.generateToken(userDetails, usuarioDb.getIdGimnasio(), usuarioDb.getRol());
 
         String estadoGym = "ACTIVO";
         String fechaVencimiento = "";

@@ -1,10 +1,11 @@
 package com.example.backend.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 
 @Entity
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuario extends TenantEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,17 +20,6 @@ public class Usuario {
 
     @Column(nullable = false)
     private String rol;
-
-    @Column(name = "id_gimnasio")
-    private Integer idGimnasio;
-
-    public Integer getIdGimnasio() {
-        return idGimnasio;
-    }
-
-    public void setIdGimnasio(Integer idGimnasio) {
-        this.idGimnasio = idGimnasio;
-    }
 
     public Integer getIdUsuario() {
         return idUsuario;

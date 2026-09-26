@@ -3,6 +3,7 @@ package com.example.backend.service;
 import com.example.backend.model.Pago;
 import com.example.backend.repository.PagoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,20 +18,13 @@ public class PagoService {
     private PagoRepository pagoRepository;
 
     public Map<String, Object> obtenerResumenFinanzas(){
-        LocalDate hoy = LocalDate.now();
-        List<Pago> pagos = pagoRepository.findAll();
-
-        pagos.sort((p1, p2) -> p2.getFechaHora().compareTo(p1.getFechaHora()));
-        double totalHistorico = pagos.stream()
-                .mapToDouble(p -> p.getMonto().doubleValue())
-                .sum();
-
-        double totalHoy = pagos.stream()
-                .filter(p -> p.getFechaHora() != null && p.getFechaHora().toLocalDate().isEqual(hoy))
-                .mapToDouble(p -> p.getMonto().doubleValue())
-                .sum();
-
         Map<String, Object> respuesta = new HashMap<>();
+
+        double totalHistorico = pagoRepository.sumarTotalHistorico();
+        double totalHoy = pagoRepository.sumarTotalHoy();
+
+        List<Pago> pagos = pagoRepository.findAll(Sort.by(Sort.Direction.DESC, "fechaHora"));
+
         respuesta.put("listaPagos", pagos);
         respuesta.put("totalHistorico", totalHistorico);
         respuesta.put("totalHoy", totalHoy);
@@ -41,6 +35,7 @@ public class PagoService {
         return pagoRepository.save(pago);
     }
     public List<Pago> listarPagos(){
-        return pagoRepository.findAll();
+
+        return pagoRepository.findAll(Sort.by(Sort.Direction.DESC, "fechaHora"));
     }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 interface Membresia {
   idMembresia: number;
@@ -17,6 +18,7 @@ interface SuscripcionAPI {
 }
 
 export default function Membresias() {
+  const rolUsuario = localStorage.getItem('rol') || 'CAJERO';
   const [membresias, setMembresias] = useState<Membresia[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   
@@ -38,12 +40,7 @@ export default function Membresias() {
   });
 
   const cargarMembresias = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/membresias`,{
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-      },
-    })
+    apiFetch('/api/membresias')
       .then(respuesta => respuesta.json())
       .then(datos => setMembresias(datos))
       .catch(error => console.error("Error conectando al backend:", error));
@@ -83,9 +80,7 @@ export default function Membresias() {
 
     try {
       // Reutilizamos tu endpoint de suscripciones
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
+      const res = await apiFetch('/api/suscripciones');
       
       if (res.ok) {
         const todasLasSuscripciones: SuscripcionAPI[] = await res.json();
@@ -110,17 +105,11 @@ export default function Membresias() {
   const guardarMembresia = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const url = membresiaEditando 
-      ? `${import.meta.env.VITE_API_URL}/api/membresias/${membresiaEditando}`
-      : `${import.meta.env.VITE_API_URL}/api/membresias`;
-      
+    const endpoint = membresiaEditando ? `/api/membresias/${membresiaEditando}` : `/api/membresias`;
     const metodo = membresiaEditando ? 'PUT' : 'POST';
 
-    fetch(url, {
+    apiFetch(endpoint, {
       method: metodo,
-      headers: { 'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-       },
       body: JSON.stringify({
         ...formulario,
         precio: parseFloat(formulario.precio),
@@ -130,7 +119,7 @@ export default function Membresias() {
     .then(async (respuesta) =>{
       if(!respuesta.ok){
         const errorTexto = await respuesta.text();
-        throw new Error(errorTexto || "Ocurrió un error al guardar la membresia.")
+        throw new Error(errorTexto || "Ocurrió un error al guardar el plan.")
       }
     })
     .then(() => {
@@ -148,11 +137,8 @@ export default function Membresias() {
 
   const eliminarMembresia = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este plan? Si hay clientes suscritos a él, podría causar conflictos.")) {
-      fetch(`${import.meta.env.VITE_API_URL}/api/membresias/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        }
+      apiFetch(`/api/membresias/${id}`, {
+        method: 'DELETE'
       })
       .then(() => {
         cargarMembresias();
@@ -171,12 +157,14 @@ export default function Membresias() {
           <h2 className="text-4xl font-black text-[#1a1446] tracking-tight">Planes y Membresías</h2>
           <p className="text-gray-500 mt-2 font-medium">Configura los paquetes que ofreces en tu gimnasio.</p>
         </div>
+        {rolUsuario ==='ADMIN' &&(
         <button 
           onClick={abrirModalCrear}
           className="bg-[#4a24ff] hover:bg-[#3616d9] text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_8px_20px_rgba(74,36,255,0.25)] hover:-translate-y-0.5"
         >
           + Nueva Membresía
         </button>
+        )}
       </header>
 
       {/* --- INICIO DEL MODAL CREAR/EDITAR --- */}
@@ -332,6 +320,8 @@ export default function Membresias() {
                       👥
                     </button>
                     {/* Botón Editar */}
+                    {rolUsuario ==='ADMIN' && (
+                      <>
                     <button 
                       onClick={() => abrirModalEditar(membresia)}
                       className="w-10 h-10 inline-flex items-center justify-center rounded-xl text-blue-500 hover:bg-blue-50 transition-colors"
@@ -347,6 +337,8 @@ export default function Membresias() {
                     >
                       🗑️
                     </button>
+                    </>
+                    )}
                   </td>
                 </tr>
               ))

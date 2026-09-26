@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 interface Suscripcion {
   idSuscripcion: number;
@@ -13,6 +14,7 @@ interface Cliente { idCliente: number; nombreCompleto: string; carnetIdentidad: 
 interface Membresia { idMembresia: number; nombre: string; precio: number; }
 
 export default function Suscripciones() {
+  const rolUsuario = localStorage.getItem('rol') || 'CAJERO';
   const [suscripciones, setSuscripciones] = useState<Suscripcion[]>([]);
   const [membresias, setMembresias] = useState<Membresia[]>([]);
   
@@ -32,13 +34,13 @@ export default function Suscripciones() {
   const [nuevoClienteForm, setNuevoClienteForm] = useState({ nombreCompleto: '', telefono: '' });
 
   const cargarDatos = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones`, {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    }).then(res => res.json()).then(datos => setSuscripciones(datos));
+    apiFetch('/api/suscripciones')
+    .then(res => res.json())
+    .then(datos => setSuscripciones(datos));
       
-    fetch(`${import.meta.env.VITE_API_URL}/api/membresias`, {
-      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-    }).then(res => res.json()).then(datos => setMembresias(datos));
+    apiFetch('/api/membresias')
+    .then(res => res.json())
+    .then(datos => setMembresias(datos));
   };
 
   useEffect(() => { cargarDatos(); }, []);
@@ -69,15 +71,12 @@ export default function Suscripciones() {
     setMostrarModal(true);
   };
 
-  // --- LA MAGIA: Buscar cliente en el backend ---
   const buscarClientePorCarnet = async () => {
     if (!carnetBuscar.trim()) return;
     
     setBuscandoCliente(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/clientes/buscar/${carnetBuscar}`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
+      const res = await apiFetch(`/api/clientes/buscar/${carnetBuscar}`);
 
       if (res.ok) {
         const clienteEncontrado = await res.json();
@@ -95,6 +94,7 @@ export default function Suscripciones() {
   };
 
   // --- EL GUARDADO DE DOS PASOS ---
+  // --- EL GUARDADO DE DOS PASOS ---
   const guardarSuscripcion = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -103,9 +103,8 @@ export default function Suscripciones() {
 
       // FASE 1: Si es nuevo cliente, lo creamos primero silenciosamente
       if (!suscripcionEditando && esNuevoCliente) {
-        const resCliente = await fetch(`${import.meta.env.VITE_API_URL}/api/clientes`, {
+        const resCliente = await apiFetch('/api/clientes', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
           body: JSON.stringify({
             carnetIdentidad: carnetBuscar,
             nombreCompleto: nuevoClienteForm.nombreCompleto,
@@ -118,7 +117,7 @@ export default function Suscripciones() {
           throw new Error(errTexto || "Error al registrar el nuevo cliente");
         }
         const clienteCreado = await resCliente.json();
-        idDelCliente = clienteCreado.idCliente; // Capturamos el ID del nuevo cliente
+        idDelCliente = clienteCreado.idCliente; 
       } else if (!suscripcionEditando && clienteSeleccionado) {
         idDelCliente = clienteSeleccionado.idCliente;
       }
@@ -133,25 +132,23 @@ export default function Suscripciones() {
       };
 
       const url = suscripcionEditando 
-        ? `${import.meta.env.VITE_API_URL}/api/suscripciones/${suscripcionEditando}`
-        : `${import.meta.env.VITE_API_URL}/api/suscripciones`;
+        ? `/api/suscripciones/${suscripcionEditando}`
+        : `/api/suscripciones`;
 
-      const resSub = await fetch(url, {
+      const resSub = await apiFetch(url, {
         method: suscripcionEditando ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
         body: JSON.stringify(cargaUtil)
       });
 
       if (!resSub.ok) throw new Error("Error al guardar la suscripción");
 
-      // AUTOMATIZACIÓN DE PAGOS (Tu código original)
+      // AUTOMATIZACIÓN DE PAGOS
       if (!suscripcionEditando) {
         const membresiaSeleccionada = membresias.find(m => m.idMembresia === parseInt(formulario.idMembresia));
         if (membresiaSeleccionada) {
           const nombreDelCliente = esNuevoCliente ? nuevoClienteForm.nombreCompleto : clienteSeleccionado?.nombreCompleto;
-          await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+          await apiFetch('/api/pagos', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('token') },
             body: JSON.stringify({
               monto: membresiaSeleccionada.precio,
               concepto: `Plan: ${membresiaSeleccionada.nombre} - ${nombreDelCliente}`,
@@ -177,9 +174,8 @@ export default function Suscripciones() {
 
   const eliminarSuscripcion = (id: number) => {
     if (window.confirm("¿Anular esta suscripción?")) {
-      fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones/${id}`, {
+      apiFetch(`/api/suscripciones/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
       }).then(() => {
         cargarDatos();
         setMensajeToast("Suscripción anulada");
@@ -291,7 +287,13 @@ export default function Suscripciones() {
               )}
 
               <div className="flex justify-end gap-3 mt-8 pt-4">
-                <button type="button" onClick={abrirModalCrear} className="px-6 py-3 text-gray-500 hover:bg-gray-100 rounded-xl font-bold">Cancelar</button>
+                <button 
+                    type="button" 
+                    onClick={() => { setMostrarModal(false); setSuscripcionEditando(null); }} 
+                    className="px-6 py-3 text-gray-500 hover:bg-gray-100 rounded-xl font-bold transition-colors"
+                  >
+                    Cancelar
+                  </button>
                 <button type="submit" disabled={!clienteSeleccionado && !esNuevoCliente} className="bg-[#4a24ff] hover:bg-[#3616d9] text-white px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                   {suscripcionEditando ? 'Guardar Cambios' : 'Cobrar y Guardar'}
                 </button>
@@ -331,8 +333,10 @@ export default function Suscripciones() {
                   </td>
                   <td className="p-5 text-right space-x-2">
                     <button onClick={() => abrirModalEditar(sub)} className="w-10 h-10 rounded-xl text-blue-500 hover:bg-blue-50">✏️</button>
+                    {rolUsuario === 'ADMIN' && (
                     <button onClick={() => eliminarSuscripcion(sub.idSuscripcion)} className="w-10 h-10 rounded-xl text-red-500 hover:bg-red-50">🗑️</button>
-                  </td>
+                    )}
+                    </td>
                 </tr>
               ))
             )}

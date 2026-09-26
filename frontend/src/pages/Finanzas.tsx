@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 interface Pago {
   idPago: number;
@@ -8,7 +9,6 @@ interface Pago {
   fechaHora: string;
 }
 
-// NUEVA INTERFAZ: Refleja exactamente lo que manda el "Super Endpoint" de Java
 interface ResumenFinanzas {
   listaPagos: Pago[];
   totalHistorico: number;
@@ -16,7 +16,6 @@ interface ResumenFinanzas {
 }
 
 export default function Finanzas() {
-  // Ahora usamos un solo estado para todo el paquete financiero
   const [resumen, setResumen] = useState<ResumenFinanzas>({
     listaPagos: [],
     totalHistorico: 0,
@@ -27,6 +26,10 @@ export default function Finanzas() {
   const [mostrarToast, setMostrarToast] = useState(false);
   const [refresh, setRefresh] = useState(0);
   
+  // Estados para el filtro de fechas
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
+  
   const [formulario, setFormulario] = useState({
     monto: '',
     concepto: '',
@@ -36,14 +39,19 @@ export default function Finanzas() {
   useEffect(() => {
     const fetchFinanzas = async () => {
       try {
-        // Apuntamos al nuevo endpoint: /api/pagos/resumen
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos/resumen`, {
-          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-        });
+        // Construimos los parámetros de fecha si el usuario los seleccionó
+        const queryParams = new URLSearchParams();
+        if (fechaInicio) queryParams.append('inicio', `${fechaInicio}T00:00:00`);
+        if (fechaFin) queryParams.append('fin', `${fechaFin}T23:59:59`);
+        
+        const url = `/api/pagos/resumen${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+        
+        // Uso del apiFetch limpio
+        const res = await apiFetch(url);
         
         if (res.ok) {
           const datos = await res.json();
-          setResumen(datos); // Asignamos todo el bloque de una sola vez
+          setResumen(datos);
         }
       } catch (error) {
         console.error("Error al cargar finanzas:", error);
@@ -51,7 +59,7 @@ export default function Finanzas() {
     };
 
     fetchFinanzas();
-  }, [refresh]);
+  }, [refresh, fechaInicio, fechaFin]); // Se recarga automáticamente al cambiar las fechas
 
   const manejarCambio = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
@@ -61,12 +69,8 @@ export default function Finanzas() {
     e.preventDefault();
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+      const res = await apiFetch('/api/pagos', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        },
         body: JSON.stringify({
           monto: parseFloat(formulario.monto),
           concepto: formulario.concepto,
@@ -89,7 +93,6 @@ export default function Finanzas() {
     } catch (error) { 
       const mensaje = error instanceof Error ? error.message : "Ocurrió un problema inesperado";
       alert("Error: " + mensaje);
-      console.error("Error al registrar pago:", error);
     }
   };
 
@@ -100,9 +103,14 @@ export default function Finanzas() {
     }).format(fecha);
   };
 
+  const limpiarFiltros = () => {
+    setFechaInicio('');
+    setFechaFin('');
+  };
+
   return (
     <div className="p-4 lg:p-8">
-      <header className="mb-10 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+      <header className="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
         <div>
           <h2 className="text-4xl font-black text-[#1a1446] tracking-tight">Finanzas y Caja</h2>
           <p className="text-gray-500 mt-2 font-medium">Lleva el control de todos los ingresos del gimnasio.</p>
@@ -115,11 +123,43 @@ export default function Finanzas() {
         </button>
       </header>
 
+      {/* --- BARRA DE FILTRO DE FECHAS --- */}
+      <div className="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-end mb-8 relative z-0">
+        <div className="w-full md:w-auto flex-1">
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fecha Inicio</label>
+          <input 
+            type="date" 
+            value={fechaInicio} 
+            onChange={(e) => setFechaInicio(e.target.value)}
+            className="w-full bg-gray-50 border border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-[#4a24ff] focus:ring-4 focus:ring-[#f4edff] outline-none transition-all font-medium text-[#1a1446]"
+          />
+        </div>
+        <div className="w-full md:w-auto flex-1">
+          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Fecha Fin</label>
+          <input 
+            type="date" 
+            value={fechaFin} 
+            onChange={(e) => setFechaFin(e.target.value)}
+            className="w-full bg-gray-50 border border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-[#4a24ff] focus:ring-4 focus:ring-[#f4edff] outline-none transition-all font-medium text-[#1a1446]"
+          />
+        </div>
+        {(fechaInicio || fechaFin) && (
+          <button 
+            onClick={limpiarFiltros}
+            className="w-full md:w-auto px-6 py-3 text-red-500 hover:bg-red-50 rounded-xl font-bold transition-colors"
+          >
+            Limpiar Filtro
+          </button>
+        )}
+      </div>
+
       {/* --- TARJETAS DE RESUMEN --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
         <div className="bg-gradient-to-br from-[#1a1446] to-[#2d226e] rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
-          <p className="text-[#a594ff] font-bold uppercase tracking-wider text-sm mb-2">Ingresos de Hoy</p>
+          <p className="text-[#a594ff] font-bold uppercase tracking-wider text-sm mb-2">
+            {fechaInicio || fechaFin ? 'Total del Periodo' : 'Ingresos de Hoy'}
+          </p>
           <h3 className="text-5xl font-black">Bs. {resumen.totalHoy.toFixed(2)}</h3>
         </div>
 
@@ -200,7 +240,7 @@ export default function Finanzas() {
             {resumen.listaPagos.length === 0 ? (
               <tr>
                 <td colSpan={4} className="p-12 text-center text-gray-400 font-medium">
-                  Aún no hay pagos registrados en la caja.
+                  {fechaInicio || fechaFin ? 'No hay pagos registrados en este rango de fechas.' : 'Aún no hay pagos registrados en la caja hoy.'}
                 </td>
               </tr>
             ) : (

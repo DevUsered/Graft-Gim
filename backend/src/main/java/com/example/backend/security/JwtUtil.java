@@ -41,9 +41,10 @@ public class JwtUtil {
     }
 
     // Fabrica el token (Válido por 10 horas)
-    public String generateToken(UserDetails userDetails, Integer idGimnasio) {
+    public String generateToken(UserDetails userDetails, Integer idGimnasio, String rol) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("idGimnasio", idGimnasio);
+        claims.put("rol", rol);
         return createToken(claims, userDetails.getUsername());
     }
     public Integer extractIdGimnasio(String token){

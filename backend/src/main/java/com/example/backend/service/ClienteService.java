@@ -42,4 +42,7 @@ public class ClienteService {
     public Optional<Cliente> buscarPorCarnet(String carnet){
         return clienteRepository.findByCarnetIdentidad(carnet);
     }
+    public Long contarClientesActivos(){
+        return clienteRepository.contarClientesActivos();
+    }
 }

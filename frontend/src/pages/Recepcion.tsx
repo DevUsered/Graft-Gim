@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { apiFetch } from '../utils/api';
 
 // Interfaces
 interface Cliente {
@@ -43,10 +44,7 @@ export default function Recepcion() {
     setHistorial([]);
 
     try {
-      // 1. Buscamos SOLO a este cliente por su Carnet
-      const resCliente = await fetch(`${import.meta.env.VITE_API_URL}/api/clientes/buscar/${ciBuscado.trim()}`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
+      const resCliente = await apiFetch(`/api/clientes/buscar/${ciBuscado.trim()}`);
 
       if (resCliente.status === 404) {
         setMensaje({ texto: 'No existe ningún cliente con ese Carnet de Identidad.', tipo: 'error' });
@@ -55,20 +53,12 @@ export default function Recepcion() {
       }
       const clienteEncontrado = await resCliente.json();
 
-      // 2. Buscamos SOLO la suscripción activa de ESTE cliente
-      const resSuscripcion = await fetch(`${import.meta.env.VITE_API_URL}/api/suscripciones/cliente/${clienteEncontrado.idCliente}/activa`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
-      // Si el backend responde 200 OK, sacamos el JSON. Si responde 404, lo dejamos en null
+      const resSuscripcion = await apiFetch(`/api/suscripciones/cliente/${clienteEncontrado.idCliente}/activa`);
       const suscripcionActiva = resSuscripcion.ok ? await resSuscripcion.json() : null;
 
-      // 3. Buscamos SOLO el historial de asistencias de ESTE cliente
-      const resAsistencias = await fetch(`${import.meta.env.VITE_API_URL}/api/asistencias/cliente/${clienteEncontrado.idCliente}`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
+      const resAsistencias = await apiFetch(`/api/asistencias/cliente/${clienteEncontrado.idCliente}`);
       const asistenciasDelCliente = resAsistencias.ok ? await resAsistencias.json() : [];
 
-      // 4. Mostramos los resultados mágicamente en pantalla
       setHistorial(asistenciasDelCliente);
       setResultado({ cliente: clienteEncontrado, suscripcion: suscripcionActiva });
 
@@ -85,11 +75,7 @@ export default function Recepcion() {
     setMensaje(null);
 
     try {
-      // 1. Buscamos al Cliente Casual
-      const resClientes = await fetch(`${import.meta.env.VITE_API_URL}/api/clientes`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
-      // Le decimos a TypeScript que esto es un arreglo de clientes
+      const resClientes = await apiFetch('/api/clientes');
       const clientes: Cliente[] = await resClientes.json(); 
       const clienteCasual = clientes.find((c: Cliente) => c.carnetIdentidad === '0' || c.carnetIdentidad === '0000');
 
@@ -98,12 +84,7 @@ export default function Recepcion() {
         setCargando(false); return;
       }
 
-      // 2. Buscamos el plan llamado "Pase Diario"
-      const resPlanes = await fetch(`${import.meta.env.VITE_API_URL}/api/membresias`, {
-        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
-      });
-      
-      // Creamos un molde (tipo) rápido para que TypeScript reconozca el precio
+      const resPlanes = await apiFetch('/api/membresias');
       type TipoPlan = { idMembresia: number; nombre: string; precio: number };
       const planes: TipoPlan[] = await resPlanes.json();
       
@@ -116,23 +97,13 @@ export default function Recepcion() {
         setCargando(false); return;
       }
 
-      // 3. Registramos la Asistencia
-      await fetch(`${import.meta.env.VITE_API_URL}/api/asistencias`, {
+      await apiFetch('/api/asistencias', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') 
-        },
         body: JSON.stringify({ cliente: { idCliente: clienteCasual.idCliente } })
       });
 
-      // 4. Mandamos a caja el precio exacto del plan
-      await fetch(`${import.meta.env.VITE_API_URL}/api/pagos`, {
+      await apiFetch('/api/pagos', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        },
         body: JSON.stringify({
           monto: planDiario.precio, 
           concepto: planDiario.nombre + ' (Cliente Casual)',
@@ -204,12 +175,8 @@ export default function Recepcion() {
   const registrarAsistencia = async () => {
     if(!resultado || !resultado.cliente) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/asistencias`, {
+      const res = await apiFetch('/api/asistencias', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + localStorage.getItem('token') // <-- AÑADIDO
-        },
         body: JSON.stringify({ cliente: { idCliente: resultado.cliente.idCliente } })
       });
       const nuevaAsistencia = await res.json();

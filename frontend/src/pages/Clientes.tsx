@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { apiFetch } from '../utils/api';
 
 interface Cliente {
   idCliente: number;
@@ -10,10 +11,11 @@ interface Cliente {
 }
 
 export default function Clientes() {
+
+  const rolUsuario = localStorage.getItem('rol') || 'CAJERO';
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
   
-  // NUEVO: Estados para manejar la edición y el mensaje dinámico
   const [clienteEditando, setClienteEditando] = useState<number | null>(null);
   const [mostrarToast, setMostrarToast] = useState(false);
   const [mensajeToast, setMensajeToast] = useState("");
@@ -25,11 +27,7 @@ export default function Clientes() {
   });
 
   const cargarClientes = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/clientes`,{
-      headers: {
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-      }
-    })
+    apiFetch('/api/clientes')
       .then(respuesta => respuesta.json())
       .then(datos => setClientes(datos))
       .catch(error => console.error("Error conectando al backend:", error));
@@ -59,28 +57,20 @@ export default function Clientes() {
     setClienteEditando(cliente.idCliente); // Modo Editar
     setMostrarModal(true);
   };
-
-  // ACTUALIZADO: Maneja tanto POST (Crear) como PUT (Editar)
   const guardarCliente = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const url = clienteEditando 
-      ? `${import.meta.env.VITE_API_URL}/api/clientes/${clienteEditando}`
-      : `${import.meta.env.VITE_API_URL}/api/clientes`;
-      
+    const endpoint = clienteEditando ? `/api/clientes/${clienteEditando}` : `/api/clientes`;
     const metodo = clienteEditando ? 'PUT' : 'POST';
 
-    fetch(url, {
+    apiFetch(endpoint, {
       method: metodo,
-      headers: { 'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + localStorage.getItem('token')
-       },
       body: JSON.stringify(formulario)
     })
     .then(async (respuesta) =>{
       if(!respuesta.ok){
         const errorTexto = await respuesta.text();
-        throw new Error(errorTexto || "Ocurrio un error al guardar el cliente.");
+        throw new Error(errorTexto || "Ocurrió un error al guardar el cliente.");
       }
       return respuesta.json();
     })
@@ -97,16 +87,10 @@ export default function Clientes() {
     .catch(error => console.error("Error al guardar:", error));
   };
 
-  // NUEVO: Función para eliminar
+ 
   const eliminarCliente = (id: number) => {
     if (window.confirm("¿Estás seguro de que deseas eliminar este cliente? Esta acción no se puede deshacer.")) {
-      fetch(`${import.meta.env.VITE_API_URL}/api/clientes/${id}`, 
-        {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Bearer ' + localStorage.getItem('token')
-        }
-      })
+      apiFetch(`/api/clientes/${id}`, { method: 'DELETE' })
       .then(() => {
         cargarClientes();
         setMensajeToast("Cliente eliminado exitosamente");
@@ -229,6 +213,7 @@ export default function Clientes() {
                       ✏️
                     </button>
                     {/* Botón Eliminar */}
+                    {rolUsuario === 'ADMIN' && (
                     <button 
                       onClick={() => eliminarCliente(cliente.idCliente)}
                       className="w-10 h-10 inline-flex items-center justify-center rounded-xl text-red-500 hover:bg-red-50 transition-colors"
@@ -236,6 +221,7 @@ export default function Clientes() {
                     >
                       🗑️
                     </button>
+                    )}
                   </td>
                 </tr>
               ))

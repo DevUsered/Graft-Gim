@@ -6,7 +6,8 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
 
   // Recuperamos el nombre del usuario y el del gimnasio
   const nombreUsuario = localStorage.getItem('username') || 'Administrador';
-  const nombreGym = localStorage.getItem('nombreGym') || 'Mi Gimnasio'; // <-- ¡NUEVO!
+  const nombreGym = localStorage.getItem('nombreGym') || 'Mi Gimnasio'; 
+  const rolUsuario = localStorage.getItem('rol') || 'CAJERO';
 
   const linkClasses = ({ isActive }: { isActive: boolean }) =>
     `flex items-center p-4 my-2 transition-all rounded-2xl font-bold ${
@@ -73,12 +74,22 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
               {isOpen && <span className="ml-4 tracking-wide">Suscripciones</span>}
             </NavLink>
           </li>
+          {rolUsuario === 'ADMIN' &&(
           <li>
             <NavLink to="/finanzas" className={linkClasses}>
               <span className="text-2xl">💰</span>
               {isOpen && <span className="ml-4 tracking-wide"> Caja y Finanzas</span>}
             </NavLink>
           </li>
+          )}
+          {rolUsuario === 'ADMIN' && (
+            <li>
+              <NavLink to="/usuarios" className={linkClasses}>
+                <span className="text-2xl">🔐</span>
+                {isOpen && <span className="ml-4 tracking-wide">Staff y Accesos</span>}
+              </NavLink>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -92,7 +103,7 @@ export default function Sidebar({ onLogout }: { onLogout: () => void }) {
             {isOpen && (
               <div className="animate-fade-in overflow-hidden">
                 <p className="text-sm font-black text-[#1a1446] truncate">{nombreUsuario}</p>
-                <p className="text-xs font-bold text-gray-400">Administrador</p>
+                <p className="text-xs font-bold text-gray-400">{rolUsuario.toLowerCase()}</p>
               </div>
             )}
           </div>

@@ -22,17 +22,18 @@ export default function Login({ onLogin }: { onLogin: () => void }) {
 
       const datos = await respuesta.json();
       
-      // Guardamos la llave mágica en la memoria del navegador
       localStorage.setItem('token', datos.token); 
       
-      // Flexibilidad por si el backend usa 'role', 'roles' u otro formato
-      const rolAsignado = datos.rol || datos.role || (datos.roles ? datos.roles[0] : '') || '';
-      localStorage.setItem('rol', typeof rolAsignado === 'string' ? rolAsignado : JSON.stringify(rolAsignado));
-      
+      const rolEncontrado = datos.rol || datos.role || (datos.roles ? datos.roles[0] : '') || 'CAJERO';
+      const rolFinal = typeof rolEncontrado === 'string' ? rolEncontrado.toUpperCase() : 'CAJERO';
+
+      localStorage.setItem('rol', rolFinal);
       localStorage.setItem('username', username);
       localStorage.setItem('estadoGym', datos.estado || 'ACTIVO');
       localStorage.setItem('vencimientoGym', datos.vencimiento || '');
       localStorage.setItem('nombreGym', datos.nombreGym || 'Panel de Control');
+
+
 
       onLogin(); // Le avisamos a la app que ya podemos entrar
       
