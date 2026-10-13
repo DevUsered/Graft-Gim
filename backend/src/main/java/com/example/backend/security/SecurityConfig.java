@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/superadmin/**").hasAuthority("SUPERADMIN")
                         .requestMatchers("/api/usuarios/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/pagos/resumen").hasAuthority("ADMIN") // El resumen de caja
+                        .requestMatchers("/api/productos/**").hasAnyAuthority("ADMIN", "CAJERO")
 
                         // 3. Reglas específicas para bloquear borrados al cajero
                         .requestMatchers(HttpMethod.DELETE, "/api/clientes/**").hasAuthority("ADMIN")

@@ -99,3 +99,13 @@ CREATE INDEX idx_pago_fecha ON pago(fecha_hora);
 
 DROP INDEX IF EXISTS idx_usuarios_username;
  CREATE UNIQUE INDEX idx_usuarios_username ON usuarios(username);
+
+CREATE TABLE productos (
+    id_producto SERIAL PRIMARY KEY ,
+    nombre VARCHAR(255) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    stock INTEGER NOT NULL,
+    categoria VARCHAR(50) NOT NULL,
+    imagen VARCHAR(1000),
+    id_gimnasio INTEGER
+);
