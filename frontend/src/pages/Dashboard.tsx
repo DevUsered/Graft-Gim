@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../utils/api'; // <-- 1. Importamos nuestra herramienta
+import { apiFetch } from '../utils/api'; 
+import { useNavigate } from 'react-router-dom';
 
 interface Metricas {
   ingresosHoy: number;
@@ -9,6 +10,9 @@ interface Metricas {
 }
 
 export default function Dashboard() {
+  // 1. Invocamos la función de navegación
+  const navigate = useNavigate();
+
   const [metricas, setMetricas] = useState<Metricas>({
     ingresosHoy: 0,
     clientesActivos: 0,
@@ -17,14 +21,12 @@ export default function Dashboard() {
   });
   const [cargando, setCargando] = useState(true);
 
-  // 2. Extraemos el rol para aplicar seguridad
   const rolUsuario = localStorage.getItem('rol') || 'CAJERO';
   const adminName = localStorage.getItem('username') || 'Usuario';
 
   useEffect(() => {
     const cargarDashboard = async () => {
       try {
-        // 3. Código limpio: apiFetch hace todo el trabajo
         const respuesta = await apiFetch('/api/dashboard/metricas');
         const datos = await respuesta.json();
         setMetricas(datos);
@@ -59,8 +61,6 @@ export default function Dashboard() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
-        
-        {/* 4. BLOQUEO DE CAJERO: Solo el ADMIN puede ver la caja de dinero */}
         {rolUsuario === 'ADMIN' && (
           <div className="bg-gradient-to-br from-[#1a1446] to-[#2d226e] rounded-3xl p-6 text-white shadow-xl relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div className="absolute top-0 right-0 w-24 h-24 bg-white opacity-5 rounded-full -mr-4 -mt-4 transition-transform group-hover:scale-150"></div>
@@ -100,6 +100,27 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* --- BOTÓN GIGANTE DEL PUNTO DE VENTA --- */}
+      <div 
+        onClick={() => navigate('/tienda')}
+        className="mb-12 bg-gradient-to-r from-[#ff4d6d] to-[#ff8fa3] rounded-3xl p-8 cursor-pointer transform transition-all hover:scale-[1.02] hover:shadow-2xl shadow-xl flex justify-between items-center group overflow-hidden relative"
+      >
+        <div className="absolute -right-6 -top-10 text-[140px] opacity-20 transform group-hover:rotate-12 transition-transform select-none">
+          🛒
+        </div>
+        <div className="relative z-10">
+          <h3 className="text-3xl md:text-4xl font-black text-white mb-2 tracking-tight">Punto de Venta</h3>
+          <p className="text-[#ffe0e6] font-medium text-lg max-w-md">
+            Gestiona y vende agua, energizantes, suplementos y más productos del gimnasio.
+          </p>
+        </div>
+        <div className="relative z-10 bg-white/20 backdrop-blur-md p-4 rounded-2xl text-white shadow-inner hidden md:block">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 group-hover:translate-x-2 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </div>
+      </div>
+
       <h3 className="text-xl font-bold text-[#1a1446] mb-6">Accesos Rápidos</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <a href="/recepcion" className="bg-[#f4edff] hover:bg-[#e9deff] p-6 rounded-3xl flex items-center gap-4 transition-colors">
@@ -118,7 +139,6 @@ export default function Dashboard() {
           </div>
         </a>
 
-        {/* 5. BLOQUEO DE CAJERO: Solo el ADMIN ve el acceso directo a finanzas */}
         {rolUsuario === 'ADMIN' && (
           <a href="/finanzas" className="bg-gray-50 hover:bg-gray-100 p-6 rounded-3xl flex items-center gap-4 transition-colors">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm">💰</div>

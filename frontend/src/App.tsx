@@ -10,6 +10,7 @@ import Finanzas from './pages/Finanzas';
 import Login from './pages/Login'; 
 import SuperAdmin from './pages/SuperAdmin'; 
 import Usuarios from './pages/Usuarios';
+import Tienda from './pages/Tienda'; // 🛒 IMPORTAMOS LA NUEVA TIENDA
 
 // 1. EL TIEMPO LÍMITE VA AQUÍ AFUERA (Para que React no se queje)
 const TIEMPO_LIMITE = 30 * 60 * 1000; // 30 minutos
@@ -151,6 +152,7 @@ export default function App() {
               <Route path="/membresias" element={<Membresias />} />
               <Route path="/suscripciones" element={<Suscripciones />} />
               <Route path="/recepcion" element={<Recepcion />} />
+              <Route path="/tienda" element={<Tienda />} /> {/* 🛒 AQUÍ ESTÁ LA NUEVA RUTA */}
               
               {/* MAGIA DE SEGURIDAD: Estas rutas solo existen si eres ADMIN */}
               {rol === 'ADMIN' && (
