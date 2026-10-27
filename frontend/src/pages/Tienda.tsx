@@ -248,7 +248,7 @@ export default function Tienda() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Precio (Bs.)</label>
-                  <input type="number" step="0.5" min="0" value={formulario.precio} onChange={e => setFormulario({...formulario, precio: parseFloat(e.target.value)})} required className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 outline-none font-bold text-[#1a1446]" />
+                  <input type="number" step="0.5" min="0" value={formulario.precio === 0 ? '' : formulario.precio} onChange={e => setFormulario({...formulario, precio: parseFloat(e.target.value) || 0})} required className="w-full bg-gray-50 border-transparent rounded-xl px-4 py-3 outline-none font-bold text-[#1a1446]" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-400 uppercase mb-2">Stock Inicial</label>
