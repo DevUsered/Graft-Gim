@@ -1,8 +1,10 @@
 package com.example.backend.controller;
 
 import com.example.backend.model.Gimnasio;
+import com.example.backend.model.Producto;
 import com.example.backend.model.Usuario;
 import com.example.backend.repository.GimnasioRepository;
+import com.example.backend.repository.ProductoRepository;
 import com.example.backend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,8 @@ public class SuperAdminController {
     private GimnasioRepository gimnasioRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private ProductoRepository productoRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -66,6 +70,14 @@ public class SuperAdminController {
         nuevoUsuario.setIdGimnasio(gimnasioGuardado.getIdGimnasio());
 
         usuarioRepository.save(nuevoUsuario);
+        Producto paseLibre = new Producto();
+        paseLibre.setNombre("Pase Libre (Visita Diaria)");
+        paseLibre.setPrecio(new java.math.BigDecimal("25.00"));
+        paseLibre.setStock(999999);
+        paseLibre.setCategoria("Servicios");
+        paseLibre.setImagen("🎟️");
+        paseLibre.setIdGimnasio(gimnasioGuardado.getIdGimnasio());
+        productoRepository.save(paseLibre);
 
         return Map.of("mensaje", "Gimnasio '" + request.nombreGimnasio + "' creado exitosamente.");
     }

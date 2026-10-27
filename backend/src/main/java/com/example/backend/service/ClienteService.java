@@ -42,6 +42,10 @@ public class ClienteService {
     public Optional<Cliente> buscarPorCarnet(String carnet){
         return clienteRepository.findByCarnetIdentidad(carnet);
     }
+    public Cliente buscarPorId(Integer id){
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
+    }
     public Long contarClientesActivos(){
         return clienteRepository.contarClientesActivos();
     }

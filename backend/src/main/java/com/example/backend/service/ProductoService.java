@@ -34,4 +34,8 @@ public class ProductoService {
     public void eliminarProducto(Integer id) {
         productoRepository.deleteById(id);
     }
+    public Producto buscarPorId(Integer id){
+        return productoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado."));
+    }
 }
