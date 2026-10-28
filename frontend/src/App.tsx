@@ -123,38 +123,41 @@ export default function App() {
     );
   }
 
-  // --- PORTAL 2: MODO GIMNASIO NORMAL ---
   return (
     <BrowserRouter>
-      <div className="flex h-screen bg-[#f8f9fa] font-sans text-gray-900 overflow-hidden relative">
+      <div className="flex h-screen bg-[#1a1446] font-sans text-gray-900 overflow-hidden relative">
+        
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#4a24ff] rounded-full mix-blend-screen filter blur-[120px] opacity-30 pointer-events-none z-0 animate-blob"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#8b5cf6] rounded-full mix-blend-screen filter blur-[120px] opacity-30 pointer-events-none z-0 animate-blob animation-delay-4000"></div>
+
         <Sidebar onLogout={manejarLogout} />
         
-        <main className="flex-1 flex flex-col overflow-y-auto">
+        <main className="flex-1 flex flex-col overflow-y-auto custom-scrollbar relative z-10">
+          
           {estaPorVencer && (
-            <div className="bg-amber-100 border-l-4 border-amber-500 p-4 m-4 md:mx-8 md:mt-8 rounded-r-lg shadow-sm flex items-center justify-between z-10 shrink-0">
+            <div className="bg-amber-500/20 backdrop-blur-md border-l-4 border-amber-500 p-4 m-4 md:mx-8 md:mt-8 rounded-r-lg shadow-sm flex items-center justify-between z-10 shrink-0">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">⚠️</span>
+                <span className="text-2xl drop-shadow-md">⚠️</span>
                 <div>
-                  <h4 className="font-bold text-amber-800">Su licencia vence en {diasRestantes} {diasRestantes === 1 ? 'día' : 'días'}</h4>
-                  <p className="text-sm text-amber-700">Evite interrupciones en su sistema. Contacte a soporte para realizar el pago de su mensualidad.</p>
+                  <h4 className="font-bold text-amber-300 drop-shadow-sm">Su licencia vence en {diasRestantes} {diasRestantes === 1 ? 'día' : 'días'}</h4>
+                  <p className="text-sm text-amber-100">Evite interrupciones en su sistema. Contacte a soporte para realizar el pago de su mensualidad.</p>
                 </div>
               </div>
-              <a href="https://wa.me/59170000000" target="_blank" rel="noreferrer" className="bg-amber-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-amber-600 hidden md:block">
+              <a href="https://wa.me/59170000000" target="_blank" rel="noreferrer" className="bg-amber-500/80 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-amber-500 hidden md:block transition-all shadow-md">
                 Pagar ahora
               </a>
             </div>
           )}
 
-          <div className="flex-1">
+          <div className="flex-1 p-4 md:p-6 lg:p-8">
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/clientes" element={<Clientes />} />
               <Route path="/membresias" element={<Membresias />} />
               <Route path="/suscripciones" element={<Suscripciones />} />
               <Route path="/recepcion" element={<Recepcion />} />
-              <Route path="/tienda" element={<Tienda />} /> {/* 🛒 AQUÍ ESTÁ LA NUEVA RUTA */}
+              <Route path="/tienda" element={<Tienda />} /> 
               
-              {/* MAGIA DE SEGURIDAD: Estas rutas solo existen si eres ADMIN */}
               {rol === 'ADMIN' && (
                 <>
                   <Route path="/finanzas" element={<Finanzas />} />
@@ -162,7 +165,6 @@ export default function App() {
                 </>
               )}
               
-              {/* Si alguien escribe una ruta que no existe o a la que no tiene permiso, lo manda al inicio */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </div>
