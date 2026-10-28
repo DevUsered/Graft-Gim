@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../utils/api'; // Usamos tu interceptor limpio
+import { apiFetch } from '../utils/api'; 
 
 interface Gimnasio {
   idGimnasio: number;
@@ -9,7 +9,6 @@ interface Gimnasio {
   fechaVencimiento: string;
 }
 
-// Interfaz para guardar los datos recién creados y mandarlos por WhatsApp
 interface CredencialesNuevas {
   nombre: string;
   usuario: string;
@@ -39,20 +38,14 @@ export default function SuperAdmin() {
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
   };
 
-  // --- MAGIA 1: Generador Automático de Credenciales ---
   const generarCredenciales = () => {
     if (!formulario.nombreGimnasio) {
       alert("Primero escribe el Nombre Comercial del gimnasio.");
       return;
     }
     
-    // Limpiamos el nombre: "Gym Power!" -> "gympower"
     const nombreLimpio = formulario.nombreGimnasio.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
-    
-    // Generamos: admin_gympower + número aleatorio
     const nuevoUsuario = `admin_${nombreLimpio}${Math.floor(Math.random() * 100)}`;
-    
-    // Generamos contraseña segura (8 letras/números aleatorios + 1 símbolo)
     const nuevaClave = Math.random().toString(36).slice(-8) + '!';
 
     setFormulario({ ...formulario, usernameAdmin: nuevoUsuario, passwordAdmin: nuevaClave });
@@ -77,7 +70,6 @@ export default function SuperAdmin() {
       });
       if (!res.ok) throw new Error("Error en registro");
       
-      // Guardamos los datos para mostrarlos en la pantalla de éxito
       setCredencialesGeneradas({
         nombre: formulario.nombreGimnasio,
         usuario: formulario.usernameAdmin,
@@ -127,120 +119,129 @@ export default function SuperAdmin() {
     } catch (error) { alert("Error al enviar recordatorio."); }
   };
 
-  // --- MAGIA 2: Botón de WhatsApp ---
   const enviarPorWhatsApp = () => {
     if (!credencialesGeneradas) return;
     const mensaje = `¡Hola! Tu sistema de gestión para *${credencialesGeneradas.nombre}* está listo. 🚀\n\n*🌐 Enlace:* https://tudominio.com\n*👤 Usuario:* ${credencialesGeneradas.usuario}\n*🔑 Contraseña:* ${credencialesGeneradas.clave}\n\n_Te recomendamos cambiar esta contraseña desde la sección 'Staff y Accesos' al ingresar._`;
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
-    setCredencialesGeneradas(null); // Cerramos el modal
+    setCredencialesGeneradas(null); 
   };
 
   return (
-    <div className="p-4 lg:p-8 min-h-screen bg-[#f3f4f6] text-gray-800">
-      <header className="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+    // ⚡ 1. FONDO CLARO CON DECORACIÓN SUTIL
+    <div className="p-4 lg:p-8 min-h-screen bg-gray-50 text-gray-800 relative overflow-hidden">
+      
+      {/* Esferas de luz sutiles para el modo corporativo */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 pointer-events-none -mr-20 -mt-20"></div>
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-100 rounded-full mix-blend-multiply filter blur-[100px] opacity-60 pointer-events-none -ml-20 -mb-20"></div>
+
+      <header className="mb-8 flex flex-col md:flex-row md:justify-between md:items-end gap-4 relative z-10">
         <div>
           <h2 className="text-3xl font-black text-[#1a1446] tracking-tight">Panel de Administración SaaS</h2>
           <p className="text-gray-500 mt-1 font-medium">Gestión integral de licencias y clientes corporativos.</p>
         </div>
-        <button onClick={() => setMostrarModal(true)} className="bg-[#1a1446] hover:bg-[#2d226e] text-white px-6 py-2.5 rounded-lg font-bold shadow-md transition-colors">
+        <button onClick={() => setMostrarModal(true)} className="bg-[#1a1446] hover:bg-[#2d226e] text-white px-6 py-3 rounded-xl font-bold shadow-[0_8px_20px_rgba(26,20,70,0.2)] transition-all hover:-translate-y-0.5">
           + Registrar Nuevo Cliente
         </button>
       </header>
 
-      {/* MÉTRICAS GLOBALES */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#4a24ff]">
-          <p className="text-sm font-bold text-gray-400 uppercase">Total Licencias</p>
-          <p className="text-3xl font-black text-[#1a1446]">{gimnasios.length}</p>
+      {/* ⚡ 2. MÉTRICAS GLOBALES CON LIGHT GLASSMORPHISM */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
+        <div className="bg-white/60 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-white border-l-4 border-l-[#4a24ff] hover:bg-white/80 transition-colors">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Total Licencias</p>
+          <p className="text-4xl font-black text-[#1a1446]">{gimnasios.length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-[#00a870]">
-          <p className="text-sm font-bold text-gray-400 uppercase">Licencias Activas</p>
-          <p className="text-3xl font-black text-[#1a1446]">{gimnasios.filter(g => g.estado === 'ACTIVO' && calcularDiasRestantes(g.fechaVencimiento) >= 0).length}</p>
+        <div className="bg-white/60 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-white border-l-4 border-l-[#00a870] hover:bg-white/80 transition-colors">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Licencias Activas</p>
+          <p className="text-4xl font-black text-[#1a1446]">{gimnasios.filter(g => g.estado === 'ACTIVO' && calcularDiasRestantes(g.fechaVencimiento) >= 0).length}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-red-500">
-          <p className="text-sm font-bold text-gray-400 uppercase">Vencidas / Suspendidas</p>
-          <p className="text-3xl font-black text-[#1a1446]">{gimnasios.filter(g => g.estado === 'CLAUSURADO' || calcularDiasRestantes(g.fechaVencimiento) < 0).length}</p>
+        <div className="bg-white/60 backdrop-blur-md p-6 rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-white border-l-4 border-l-red-500 hover:bg-white/80 transition-colors">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Vencidas / Suspendidas</p>
+          <p className="text-4xl font-black text-[#1a1446]">{gimnasios.filter(g => g.estado === 'CLAUSURADO' || calcularDiasRestantes(g.fechaVencimiento) < 0).length}</p>
         </div>
       </div>
 
-      {/* TABLA CORPORATIVA */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <table className="w-full text-left border-collapse text-sm">
+      {/* ⚡ 3. TABLA CORPORATIVA LIGHT GLASSMORPHISM */}
+      <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white overflow-x-auto relative z-10 custom-scrollbar">
+        <table className="w-full text-left border-collapse text-sm min-w-[800px]">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="p-4 font-bold text-gray-500 uppercase">Empresa / ID</th>
-              <th className="p-4 font-bold text-gray-500 uppercase">Vencimiento</th>
-              <th className="p-4 font-bold text-gray-500 uppercase text-center">Estado de Licencia</th>
-              <th className="p-4 font-bold text-gray-500 uppercase text-right">Gestión Administrativa</th>
+            <tr className="bg-white/50 border-b border-gray-100 backdrop-blur-md">
+              <th className="p-5 font-bold text-gray-400 uppercase tracking-wider text-xs">Empresa / ID</th>
+              <th className="p-5 font-bold text-gray-400 uppercase tracking-wider text-xs">Vencimiento</th>
+              <th className="p-5 font-bold text-gray-400 uppercase tracking-wider text-xs text-center">Estado de Licencia</th>
+              <th className="p-5 font-bold text-gray-400 uppercase tracking-wider text-xs text-right">Gestión Administrativa</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {gimnasios.map((gym) => {
-              const diasRestantes = calcularDiasRestantes(gym.fechaVencimiento);
-              const esVencido = diasRestantes < 0;
-              const estaCritico = diasRestantes >= 0 && diasRestantes <= 5;
-              
-              return (
-                <tr key={gym.idGimnasio} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-4">
-                    <p className="font-bold text-gray-900 text-base">{gym.nombre}</p>
-                    <p className="text-xs text-gray-400">ID: {gym.idGimnasio} • {gym.direccion}</p>
-                  </td>
-                  <td className="p-4">
-                    <p className="font-semibold text-gray-800">{gym.fechaVencimiento || 'No definida'}</p>
-                    {gym.fechaVencimiento && (
-                      <p className={`text-xs font-bold mt-1 ${esVencido ? 'text-red-500' : estaCritico ? 'text-amber-500' : 'text-green-600'}`}>
-                        {esVencido ? `Venció hace ${Math.abs(diasRestantes)} días` : `Quedan ${diasRestantes} días`}
-                      </p>
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
-                      gym.estado === 'ACTIVO' && !esVencido ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      {gym.estado === 'ACTIVO' ? (esVencido ? 'DEUDA' : 'AL DÍA') : 'SUSPENDIDO'}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right space-x-2">
-                    <button onClick={() => enviarAviso(gym.idGimnasio)} title="Enviar Recordatorio" className="p-2 text-gray-400 hover:text-[#4a24ff] transition-colors rounded-lg hover:bg-[#4a24ff]/10">
-                      🔔
-                    </button>
-                    <button onClick={() => renovarSuscripcion(gym.idGimnasio, gym.nombre)} className="px-3 py-1.5 text-xs font-bold bg-[#e0f8f1] text-[#00a870] hover:bg-[#cbf1e6] rounded-lg transition-colors">
-                      + Renovar
-                    </button>
-                    <button onClick={() => cambiarEstado(gym.idGimnasio, gym.estado)} className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
-                      gym.estado === 'ACTIVO' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}>
-                      {gym.estado === 'ACTIVO' ? 'Suspender' : 'Reactivar'}
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+            {gimnasios.length === 0 ? (
+              <tr><td colSpan={4} className="p-12 text-center text-gray-400 font-medium">No hay licencias registradas aún.</td></tr>
+            ) : (
+              gimnasios.map((gym) => {
+                const diasRestantes = calcularDiasRestantes(gym.fechaVencimiento);
+                const esVencido = diasRestantes < 0;
+                const estaCritico = diasRestantes >= 0 && diasRestantes <= 5;
+                
+                return (
+                  <tr key={gym.idGimnasio} className="hover:bg-white/60 transition-colors group">
+                    <td className="p-5">
+                      <p className="font-bold text-[#1a1446] text-base">{gym.nombre}</p>
+                      <p className="text-xs text-gray-500 font-medium mt-0.5">ID: {gym.idGimnasio} • {gym.direccion}</p>
+                    </td>
+                    <td className="p-5">
+                      <p className="font-bold text-gray-700">{gym.fechaVencimiento || 'No definida'}</p>
+                      {gym.fechaVencimiento && (
+                        <p className={`text-[10px] uppercase font-black mt-1 ${esVencido ? 'text-red-500' : estaCritico ? 'text-amber-500' : 'text-green-500'}`}>
+                          {esVencido ? `Venció hace ${Math.abs(diasRestantes)} días` : `Quedan ${diasRestantes} días`}
+                        </p>
+                      )}
+                    </td>
+                    <td className="p-5 text-center">
+                      <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border ${
+                        gym.estado === 'ACTIVO' && !esVencido ? 'bg-green-50 text-green-600 border-green-200' : 'bg-red-50 text-red-600 border-red-200'
+                      }`}>
+                        {gym.estado === 'ACTIVO' ? (esVencido ? 'DEUDA' : 'AL DÍA') : 'SUSPENDIDO'}
+                      </span>
+                    </td>
+                    <td className="p-5 text-right space-x-2">
+                      <button onClick={() => enviarAviso(gym.idGimnasio)} title="Enviar Recordatorio" className="p-2 text-gray-400 hover:text-[#4a24ff] transition-colors rounded-xl hover:bg-[#4a24ff]/10">
+                        🔔
+                      </button>
+                      <button onClick={() => renovarSuscripcion(gym.idGimnasio, gym.nombre)} className="px-4 py-2 text-xs font-bold bg-[#00a870]/10 text-[#00a870] hover:bg-[#00a870]/20 rounded-xl transition-colors border border-transparent hover:border-[#00a870]/30">
+                        + Renovar
+                      </button>
+                      <button onClick={() => cambiarEstado(gym.idGimnasio, gym.estado)} className={`px-4 py-2 text-xs font-bold rounded-xl transition-colors border border-transparent ${
+                        gym.estado === 'ACTIVO' ? 'bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-200' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:border-gray-300'
+                      }`}>
+                        {gym.estado === 'ACTIVO' ? 'Suspender' : 'Reactivar'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* MODAL DE CREACIÓN (Con botón generador) */}
+      {/* ⚡ 4. MODAL DE CREACIÓN LIGHT GLASSMORPHISM */}
       {mostrarModal && (
-        <div className="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
-            <h3 className="text-xl font-bold text-[#1a1446] mb-4 border-b pb-2">Registrar Nueva Cuenta Corporativa</h3>
+        <div className="fixed inset-0 bg-[#1a1446]/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-xl p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white">
+            <h3 className="text-2xl font-black text-[#1a1446] mb-6">Registrar Cliente Corporativo</h3>
             
-            <form onSubmit={registrarGimnasio} className="space-y-4">
+            <form onSubmit={registrarGimnasio} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-gray-500 mb-1">Nombre Comercial</label>
-                <input type="text" name="nombreGimnasio" value={formulario.nombreGimnasio} onChange={manejarCambio} required className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4a24ff] text-sm font-bold" placeholder="Ej: Flex Fitness" />
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Nombre Comercial</label>
+                <input type="text" name="nombreGimnasio" value={formulario.nombreGimnasio} onChange={manejarCambio} required className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#4a24ff] focus:ring-4 focus:ring-[#f4edff] transition-all font-bold text-[#1a1446]" placeholder="Ej: Flex Fitness" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Ubicación</label>
-                  <input type="text" name="direccion" value={formulario.direccion} onChange={manejarCambio} required className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4a24ff] text-sm" />
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Ubicación</label>
+                  <input type="text" name="direccion" value={formulario.direccion} onChange={manejarCambio} required className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#4a24ff] focus:ring-4 focus:ring-[#f4edff] transition-all font-medium text-[#1a1446]" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 mb-1">Plan (Meses)</label>
-                  <select name="mesesLicencia" value={formulario.mesesLicencia} onChange={manejarCambio} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#4a24ff] text-sm font-bold">
+                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Plan (Meses)</label>
+                  <select name="mesesLicencia" value={formulario.mesesLicencia} onChange={manejarCambio} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#4a24ff] focus:ring-4 focus:ring-[#f4edff] transition-all font-bold text-[#1a1446] cursor-pointer">
                     <option value="1">1 Mes</option>
                     <option value="3">3 Meses</option>
                     <option value="6">6 Meses</option>
@@ -249,51 +250,51 @@ export default function SuperAdmin() {
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-100 mt-4">
-                <div className="flex justify-between items-end mb-2">
-                  <label className="block text-xs font-bold text-[#4a24ff] uppercase">Credenciales de Acceso</label>
-                  <button type="button" onClick={generarCredenciales} className="text-xs bg-[#f4edff] text-[#4a24ff] px-3 py-1 rounded-lg font-bold hover:bg-[#4a24ff] hover:text-white transition-colors">
+              <div className="pt-6 border-t border-gray-100 mt-6">
+                <div className="flex justify-between items-end mb-4">
+                  <label className="block text-xs font-black text-[#4a24ff] uppercase tracking-wider">Credenciales de Acceso</label>
+                  <button type="button" onClick={generarCredenciales} className="text-xs bg-[#4a24ff]/10 text-[#4a24ff] border border-[#4a24ff]/20 px-3 py-1.5 rounded-lg font-bold hover:bg-[#4a24ff] hover:text-white transition-colors">
                     ⚡ Autogenerar
                   </button>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Usuario Admin</label>
-                    <input type="text" name="usernameAdmin" value={formulario.usernameAdmin} onChange={manejarCambio} required className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#00a870] text-sm bg-gray-50" />
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Usuario Admin</label>
+                    <input type="text" name="usernameAdmin" value={formulario.usernameAdmin} onChange={manejarCambio} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#00a870] font-mono text-sm text-[#1a1446]" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1">Contraseña</label>
-                    <input type="text" name="passwordAdmin" value={formulario.passwordAdmin} onChange={manejarCambio} required className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-[#00a870] text-sm bg-gray-50" />
+                    <label className="block text-xs font-bold text-gray-400 mb-1">Contraseña</label>
+                    <input type="text" name="passwordAdmin" value={formulario.passwordAdmin} onChange={manejarCambio} required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#00a870] font-mono text-sm text-[#1a1446]" />
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-2 pt-4">
-                <button type="button" onClick={() => setMostrarModal(false)} className="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm font-bold">Cancelar</button>
-                <button type="submit" disabled={cargando} className="bg-[#1a1446] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-md hover:bg-[#2d226e]">{cargando ? 'Guardando...' : 'Crear Cliente'}</button>
+              <div className="flex justify-end space-x-3 pt-6 border-t border-gray-100 mt-4">
+                <button type="button" onClick={() => setMostrarModal(false)} className="px-6 py-3 text-gray-500 hover:bg-gray-100 rounded-xl font-bold transition-colors">Cancelar</button>
+                <button type="submit" disabled={cargando} className="bg-[#1a1446] hover:bg-[#2d226e] text-white px-6 py-3 rounded-xl font-bold shadow-[0_4px_12px_rgba(26,20,70,0.2)] transition-all disabled:opacity-50">{cargando ? 'Guardando...' : 'Crear Cliente'}</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL DE ÉXITO (Para enviar WhatsApp) */}
+      {/* ⚡ 5. MODAL DE ÉXITO Y WHATSAPP LIGHT GLASSMORPHISM */}
       {credencialesGeneradas && (
-        <div className="fixed inset-0 bg-[#1a1446]/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center animate-fade-in-up">
-            <div className="w-20 h-20 bg-[#e0f8f1] rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
+        <div className="fixed inset-0 bg-[#1a1446]/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white/90 backdrop-blur-2xl p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center border border-white animate-fade-in-up">
+            <div className="w-20 h-20 bg-[#e0f8f1] rounded-full flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner border border-[#00a870]/20">
               🎉
             </div>
             <h3 className="text-2xl font-black text-[#1a1446] mb-2">¡Cliente Registrado!</h3>
-            <p className="text-gray-500 text-sm mb-6">La cuenta de {credencialesGeneradas.nombre} está activa y lista para usarse.</p>
+            <p className="text-gray-500 text-sm mb-6">La cuenta de <strong>{credencialesGeneradas.nombre}</strong> está activa.</p>
             
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-left mb-8">
-              <p className="text-xs text-gray-400 font-bold uppercase mb-1">Usuario:</p>
-              <p className="font-mono font-bold text-[#1a1446] mb-3">{credencialesGeneradas.usuario}</p>
+            <div className="bg-gray-50/80 p-5 rounded-2xl border border-gray-200 text-left mb-8 shadow-sm">
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Usuario:</p>
+              <p className="font-mono font-bold text-[#1a1446] text-lg mb-4 bg-white p-2 rounded-lg border border-gray-100">{credencialesGeneradas.usuario}</p>
               
-              <p className="text-xs text-gray-400 font-bold uppercase mb-1">Contraseña:</p>
-              <p className="font-mono font-bold text-[#1a1446]">{credencialesGeneradas.clave}</p>
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Contraseña:</p>
+              <p className="font-mono font-bold text-[#1a1446] text-lg bg-white p-2 rounded-lg border border-gray-100">{credencialesGeneradas.clave}</p>
             </div>
 
             <button 
@@ -304,7 +305,7 @@ export default function SuperAdmin() {
             </button>
             <button 
               onClick={() => setCredencialesGeneradas(null)}
-              className="w-full px-6 py-3 text-gray-400 hover:text-gray-600 font-bold text-sm"
+              className="w-full px-6 py-3 text-gray-400 hover:bg-gray-100 rounded-xl font-bold transition-colors"
             >
               Cerrar
             </button>
